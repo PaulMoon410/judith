@@ -1,22 +1,4 @@
 const supplierScraper = require('./supplierScraper');
-// ...existing code...
-
-// Search and compare prices from suppliers (must be after app is defined)
-app.get('/api/compare-prices', authenticate, async (req, res) => {
-  const { query } = req.query;
-  if (!query) return res.status(400).json({ error: 'Missing search query' });
-  try {
-    const [hd, lowes, ace] = await Promise.all([
-      supplierScraper.scrapeHomeDepot(query).catch(() => []),
-      supplierScraper.scrapeLowes(query).catch(() => []),
-      supplierScraper.scrapeAceHardware(query).catch(() => [])
-    ]);
-    const all = [...hd, ...lowes, ...ace];
-    res.json({ results: all });
-  } catch (err) {
-    res.status(500).json({ error: 'Scraping failed', details: err.message });
-  }
-});
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -247,6 +229,24 @@ app.post('/api/invoice', authenticate, (req, res) => {
   }
   doc.end();
   doc.pipe(res);
+});
+
+
+// Search and compare prices from suppliers (must be after app is defined)
+app.get('/api/compare-prices', authenticate, async (req, res) => {
+  const { query } = req.query;
+  if (!query) return res.status(400).json({ error: 'Missing search query' });
+  try {
+    const [hd, lowes, ace] = await Promise.all([
+      supplierScraper.scrapeHomeDepot(query).catch(() => []),
+      supplierScraper.scrapeLowes(query).catch(() => []),
+      supplierScraper.scrapeAceHardware(query).catch(() => [])
+    ]);
+    const all = [...hd, ...lowes, ...ace];
+    res.json({ results: all });
+  } catch (err) {
+    res.status(500).json({ error: 'Scraping failed', details: err.message });
+  }
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
