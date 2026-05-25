@@ -1,5 +1,5 @@
 const supplierScraper = require('./supplierScraper');
-// Search and compare prices from suppliers
+// Search and compare prices from suppliers (must be after app is defined)
 app.get('/api/compare-prices', authenticate, async (req, res) => {
   const { query } = req.query;
   if (!query) return res.status(400).json({ error: 'Missing search query' });
