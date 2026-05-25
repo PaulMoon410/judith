@@ -1,0 +1,28 @@
+{
+  "name": "judith",
+  "version": "1.0.0",
+  "description": "A modern, mobile-friendly web app for tracking invoices, spending, receipts, gas, and all business transactions for The Judith Group (electrical business).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.16.1",
+    "basic-ftp": "^6.0.1",
+    "bcryptjs": "^3.0.3",
+    "cheerio": "^1.2.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "pdfkit": "^0.18.0",
+    "puppeteer": "^25.0.4",
+    "sqlite3": "^6.0.1",
+    "tesseract.js": "^7.0.0"
+  }
+}
