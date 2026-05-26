@@ -60,6 +60,18 @@ const createTables = () => {
   )`).run();
 };
 createTables();
+// Auth middleware
+const authenticate = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.sendStatus(401);
+  jwt.verify(token, process.env.JWT_SECRET || 'secret', (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+};
+
 // CRUD for product price list
 
 app.get('/api/products', authenticate, (req, res) => {
