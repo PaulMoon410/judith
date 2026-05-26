@@ -4,7 +4,9 @@
   "description": "A modern, mobile-friendly web app for tracking invoices, spending, receipts, gas, and all business transactions for The Judith Group (electrical business).",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node backend/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "npm rebuild sqlite3"
   },
   "keywords": [],
   "author": "",
