@@ -2,7 +2,7 @@ const supplierScraper = require('./supplierScraper');
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
@@ -25,19 +25,22 @@ downloadDB().then(() => {
 });
 
 // SQLite DB setup
-const db = new sqlite3.Database('./judith.db', (err) => {
-  if (err) return console.error('DB connection error:', err.message);
+let db;
+try {
+  db = new Database('./judith.db');
   console.log('Connected to SQLite database.');
-});
+} catch (err) {
+  console.error('DB connection error:', err.message);
+}
 
 // Create tables if not exist
 const createTables = () => {
-  db.run(`CREATE TABLE IF NOT EXISTS users (
+  db.prepare(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE,
     password TEXT
-  )`);
-  db.run(`CREATE TABLE IF NOT EXISTS transactions (
+  )`).run();
+  db.prepare(`CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type TEXT,
     category TEXT,
@@ -46,52 +49,58 @@ const createTables = () => {
     date TEXT,
     user_id INTEGER,
     FOREIGN KEY(user_id) REFERENCES users(id)
-  )`);
-  db.run(`CREATE TABLE IF NOT EXISTS products (
+  )`).run();
+  db.prepare(`CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
     description TEXT,
     price REAL,
     supplier TEXT,
     sku TEXT
-  )`);
+  )`).run();
 };
 createTables();
 // CRUD for product price list
+
 app.get('/api/products', authenticate, (req, res) => {
-  db.all('SELECT * FROM products', [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+  try {
+    const rows = db.prepare('SELECT * FROM products').all();
     res.json(rows);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/products', authenticate, (req, res) => {
   const { name, description, price, supplier, sku } = req.body;
-  db.run('INSERT INTO products (name, description, price, supplier, sku) VALUES (?, ?, ?, ?, ?)',
-    [name, description, price, supplier, sku],
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID });
-    }
-  );
+  try {
+    const stmt = db.prepare('INSERT INTO products (name, description, price, supplier, sku) VALUES (?, ?, ?, ?, ?)');
+    const info = stmt.run(name, description, price, supplier, sku);
+    res.json({ id: info.lastInsertRowid });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.put('/api/products/:id', authenticate, (req, res) => {
   const { name, description, price, supplier, sku } = req.body;
-  db.run('UPDATE products SET name=?, description=?, price=?, supplier=?, sku=? WHERE id=?',
-    [name, description, price, supplier, sku, req.params.id],
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ updated: this.changes });
-    }
-  );
+  try {
+    const stmt = db.prepare('UPDATE products SET name=?, description=?, price=?, supplier=?, sku=? WHERE id=?');
+    const info = stmt.run(name, description, price, supplier, sku, req.params.id);
+    res.json({ updated: info.changes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/products/:id', authenticate, (req, res) => {
-  db.run('DELETE FROM products WHERE id=?', [req.params.id], function(err) {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ deleted: this.changes });
-  });
+  try {
+    const stmt = db.prepare('DELETE FROM products WHERE id=?');
+    const info = stmt.run(req.params.id);
+    res.json({ deleted: info.changes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Lookup product price from supplier API (placeholder)
@@ -139,56 +148,63 @@ const authenticate = (req, res, next) => {
 
 // CRUD for transactions (with FTP sync after changes)
 app.get('/api/transactions', authenticate, (req, res) => {
-  db.all('SELECT * FROM transactions WHERE user_id = ?', [req.user.id], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+  try {
+    const rows = db.prepare('SELECT * FROM transactions WHERE user_id = ?').all(req.user.id);
     res.json(rows);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/transactions', authenticate, (req, res) => {
   const { type, category, amount, description, date } = req.body;
-  db.run('INSERT INTO transactions (type, category, amount, description, date, user_id) VALUES (?, ?, ?, ?, ?, ?)',
-    [type, category, amount, description, date, req.user.id],
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      uploadDB();
-      res.json({ id: this.lastID });
-    }
-  );
+  try {
+    const stmt = db.prepare('INSERT INTO transactions (type, category, amount, description, date, user_id) VALUES (?, ?, ?, ?, ?, ?)');
+    const info = stmt.run(type, category, amount, description, date, req.user.id);
+    uploadDB();
+    res.json({ id: info.lastInsertRowid });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.put('/api/transactions/:id', authenticate, (req, res) => {
   const { type, category, amount, description, date } = req.body;
-  db.run('UPDATE transactions SET type=?, category=?, amount=?, description=?, date=? WHERE id=? AND user_id=?',
-    [type, category, amount, description, date, req.params.id, req.user.id],
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      uploadDB();
-      res.json({ updated: this.changes });
-    }
-  );
+  try {
+    const stmt = db.prepare('UPDATE transactions SET type=?, category=?, amount=?, description=?, date=? WHERE id=? AND user_id=?');
+    const info = stmt.run(type, category, amount, description, date, req.params.id, req.user.id);
+    uploadDB();
+    res.json({ updated: info.changes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/transactions/:id', authenticate, (req, res) => {
-  db.run('DELETE FROM transactions WHERE id=? AND user_id=?', [req.params.id, req.user.id], function(err) {
-    if (err) return res.status(500).json({ error: err.message });
+  try {
+    const stmt = db.prepare('DELETE FROM transactions WHERE id=? AND user_id=?');
+    const info = stmt.run(req.params.id, req.user.id);
     uploadDB();
-    res.json({ deleted: this.changes });
-  });
+    res.json({ deleted: info.changes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 
 // Export transactions (CSV)
 app.get('/api/export', authenticate, (req, res) => {
-  db.all('SELECT * FROM transactions WHERE user_id = ?', [req.user.id], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+  try {
+    const rows = db.prepare('SELECT * FROM transactions WHERE user_id = ?').all(req.user.id);
     const csv = ['id,type,category,amount,description,date'].concat(
       rows.map(r => `${r.id},${r.type},${r.category},${r.amount},${r.description},${r.date}`)
     ).join('\n');
     res.header('Content-Type', 'text/csv');
     res.attachment('transactions.csv');
     res.send(csv);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Multer setup for image uploads
