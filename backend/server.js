@@ -145,19 +145,6 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// Auth middleware
-const authenticate = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.sendStatus(401);
-  jwt.verify(token, process.env.JWT_SECRET || 'secret', (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-};
-
-
 // CRUD for transactions (with FTP sync after changes)
 app.get('/api/transactions', authenticate, (req, res) => {
   try {
