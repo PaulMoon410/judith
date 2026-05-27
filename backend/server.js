@@ -15,6 +15,13 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+
+// Set Content Security Policy header to allow images, scripts, and styles from self
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline';");
+  next();
+});
+
 app.use(cors());
 app.use(express.json());
 
