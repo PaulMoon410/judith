@@ -275,7 +275,7 @@ app.get('/api/compare-prices', authenticate, async (req, res) => {
 // Serve static index.html for root and unknown routes (for Render and SPA support)
 const rootDir = path.join(__dirname, '..');
 app.use(express.static(rootDir));
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   res.sendFile(path.join(rootDir, 'index.html'));
 });
 
