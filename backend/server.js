@@ -272,11 +272,21 @@ app.get('/api/compare-prices', authenticate, async (req, res) => {
 });
 
 
-// Serve static index.html for root and unknown routes (for Render and SPA support)
+
+// Serve static files
 const rootDir = path.join(__dirname, '..');
 app.use(express.static(rootDir));
-app.get('/:path(*)', (req, res) => {
-  res.sendFile(path.join(rootDir, 'index.html'));
+
+// SPA fallback: serve index.html for all non-API, non-static GET requests
+app.use((req, res, next) => {
+  if (req.method === 'GET' &&
+      !req.path.startsWith('/api') &&
+      !req.path.startsWith('/static') &&
+      !path.extname(req.path)) {
+    res.sendFile(path.join(rootDir, 'index.html'));
+  } else {
+    next();
+  }
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
