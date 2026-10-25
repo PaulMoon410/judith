@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Judith Estimator</title></head><body>
+<h1>Estimate Request</h1>
+<form id="f">
+<input name="name" placeholder="Name"><br>
+<input name="email" placeholder="Email"><br>
+<textarea name="desc" placeholder="Description"></textarea><br>
+<button>Submit</button>
+</form>
+<pre id="out"></pre>
+<script>
+document.getElementById('f').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const fd=new FormData(e.target);
+ const r=await fetch('/api/estimate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(fd))});
+ document.getElementById('out').textContent=JSON.stringify(await r.json(),null,2);
+});
+</script></body></html>

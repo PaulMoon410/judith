@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template, jsonify
 import os, smtplib
 from email.message import EmailMessage
 
@@ -29,7 +29,13 @@ def index():
             return f"Email failed: {e}"
         # QuickBooks placeholder: push to QBO API here with OAuth token
         return "Submitted! We'll be in touch."
-    return render_template_string(HTML)
+    return render_template("index.html")
+
+@app.route("/api/estimate", methods=["POST"])
+def api_estimate():
+    data = request.get_json(silent=True) or {}
+    return jsonify({"status": "received", "name": data.get("name"), "email": data.get("email"), "desc": data.get("desc")})
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")))
