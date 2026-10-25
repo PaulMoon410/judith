@@ -12,8 +12,13 @@ pre{background:#0f172a;padding:12px;border-radius:8px;overflow:auto;max-height:3
 <h1>Judith Electrical Estimator</h1>
 
 <div class="card"><h2>1. Building Type</h2>
-<button onclick="setType('Residential')">Residential</button>
-<select onchange="if(this.value) setType(this.value)"><option value="">Commercial/Industrial occupancy...</option>
+<div id="type-buttons" class="grid">
+<button data-type="Residential">Residential</button>
+<button data-type="Commercial">Commercial</button>
+<button data-type="Industrial">Industrial</button>
+<button data-type="Multi-family">Multi-family</button>
+</div>
+<select id="occType"><option value="">Commercial/Industrial occupancy...</option>
 <option>office</option><option>schools</option><option>hospitals</option><option>stores</option><option>warehouses</option><option>industrial</option></select>
 </div>
 
@@ -21,12 +26,12 @@ pre{background:#0f172a;padding:12px;border-radius:8px;overflow:auto;max-height:3
 <select id="edition"><option>NEC 2023</option><option>NEC 2020</option><option>NEC 2017</option></select>
 <button id="continueBtn">Continue</button></div>
 
-<div id="menu" class="card" style="display:none"><h3>3. Workflow</h3><div class="grid">
-<button onclick="show('blueprint')">Upload Blueprints</button>
-<button onclick="show('room')">Manual Room / NEC</button>
-<button onclick="show('estimate')">Manual Estimate</button>
-<button onclick="show('materials')">Materials & Pricing</button>
-<button onclick="show('labor')">Labor Rates</button>
+<div id="menu" class="card" style="display:none"><h3>3. Workflow</h3><div id="workflow-buttons" class="grid">
+<button data-target="blueprint">Upload Blueprints</button>
+<button data-target="room">Manual Room / NEC</button>
+<button data-target="estimate">Manual Estimate</button>
+<button data-target="materials">Materials & Pricing</button>
+<button data-target="labor">Labor Rates</button>
 </div></div>
 
 <div id="blueprint" class="card" style="display:none"><h3>Blueprint Upload</h3><input type="file"></div>
