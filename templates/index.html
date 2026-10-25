@@ -1,15 +1,19 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Judith Estimator</title></head><body>
-<h1>Estimate Request</h1>
+<h1>Judith Electrical Estimator</h1>
+<section><h2>Labor Rate</h2><div id="rate"></div></section>
+<section><h2>Materials</h2><ul id="mats"></ul></section>
+<section><h2>New Estimate</h2>
 <form id="f">
-<input name="name" placeholder="Name"><br>
-<input name="email" placeholder="Email"><br>
+<input name="title" placeholder="Title"><br>
 <select name="building_type"><option>Residential</option><option>Commercial</option><option>Industrial</option></select><br>
 <select name="code_edition"><option>NEC 2023</option><option>NEC 2020</option></select><br>
 <textarea name="desc" placeholder="Description"></textarea><br>
 <button>Submit</button>
 </form>
-<pre id="out"></pre>
+<pre id="out"></pre></section>
 <script>
+fetch('/api/labor-rate').then(r=>r.json()).then(d=>document.getElementById('rate').textContent=d.rate);
+fetch('/api/materials').then(r=>r.json()).then(d=>{const u=document.getElementById('mats');d.forEach(m=>{const li=document.createElement('li');li.textContent=m.description+' $'+m.unit_price;u.appendChild(li);});});
 document.getElementById('f').addEventListener('submit',async e=>{
  e.preventDefault();
  const fd=new FormData(e.target);
