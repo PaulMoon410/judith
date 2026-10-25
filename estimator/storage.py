@@ -27,6 +27,17 @@ def get_cached_ai_value(pricebook: dict[str, Any], key: str) -> Any:
 
 def set_cached_ai_value(pricebook: dict[str, Any], key: str, value: Any) -> None:
     get_ai_cache(pricebook)[key] = {"ts": time.time(), "value": value}
+
+
+def get_or_fetch_ai(pricebook: dict[str, Any], key: str, fetcher) -> Any:
+    cached = get_cached_ai_value(pricebook, key)
+    if cached is not None:
+        return cached
+    value = fetcher()
+    if value is not None:
+        set_cached_ai_value(pricebook, key, value)
+        save_pricebook(pricebook)
+    return value
 def _ftp_config():
     host = os.environ.get("FTP_HOST", "").strip()
     if not host:
