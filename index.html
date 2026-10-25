@@ -195,12 +195,15 @@
 
 <script>
     let type = '';
+    function showLoading(){document.getElementById('loading').style.display='flex';}
+    function hideLoading(){document.getElementById('loading').style.display='none';}
 
     function setType(btnElement, t) {
         type = t;
         document.querySelectorAll('#type-buttons button').forEach(b => b.classList.remove('active'));
         btnElement.classList.add('active');
         document.getElementById('code').style.display = 'block';
+        if (t === 'Residential') { setTimeout(start, 200); }
     }
 
     function start() {
@@ -217,5 +220,6 @@
     }
 </script>
 
+<div id="loading" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);align-items:center;justify-content:center;color:#fff;font-size:1.2rem;">Loading…</div>
 </body>
 </html>
