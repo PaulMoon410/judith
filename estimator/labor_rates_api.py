@@ -309,29 +309,20 @@ def format_enhanced_report(cmp: RateComparison) -> str:
     report = format_report(cmp)
 
     # Add API-specific information
-    report += "
-
-" + "=" * 78
-    report += "
-API-SOURCE DETAILS:"
-    report += "
-" + "=" * 78
+    report += "\n\n" + "=" * 78
+    report += "\nAPI-SOURCE DETAILS:"
+    report += "\n" + "=" * 78
 
     # Find API sources
     api_sources = [s for s in cmp.sources if s.key.startswith(("indeed_", "upwork_", "union_"))]
 
     if api_sources:
         for source in api_sources:
-            report += f"
-
-{source.label} ({source.as_of})"
-            report += f"
-  URL: {source.url}"
+            report += f"\n\n{source.label} ({source.as_of})"
+            report += f"\n  URL: {source.url}"
             if source.note:
-                report += f"
-  Note: {source.note}"
+                report += f"\n  Note: {source.note}"
     else:
-        report += "
-No API sources were available. Check your API keys and network connection."
+        report += "\nNo API sources were available. Check your API keys and network connection."
 
     return report

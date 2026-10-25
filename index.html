@@ -1,68 +1,922 @@
-<!doctype html><html><head><meta charset="utf-8"><title>Judith Estimator</title>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<style>
-body{font-family:system-ui,Arial;margin:0;background:#0f172a;color:#e2e8f0}
-.wrap{max-width:960px;margin:24px auto;padding:16px}
-.card{background:#1e293b;border-radius:12px;padding:16px;margin:12px 0}
-button{background:#3b82f6;color:#fff;border:none;padding:8px 12px;border-radius:6px;margin:4px;cursor:pointer}
-input,select,textarea{padding:8px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;margin:4px 0;width:100%}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
-pre{background:#0f172a;padding:12px;border-radius:8px;overflow:auto;max-height:300px}
-</style></head><body><div class="wrap">
-<h1>Judith Electrical Estimator</h1>
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Judith Estimator</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #64748b;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text: #e2e8f0;
+            --text-secondary: #cbd5e1;
+        }
 
-<div class="card"><h2>1. Building Type</h2>
-<button onclick="setType('Residential')">Residential</button>
-<select onchange="if(this.value) setType(this.value)"><option value="">Commercial/Industrial occupancy...</option>
-<option>office</option><option>schools</option><option>hospitals</option><option>stores</option><option>warehouses</option><option>industrial</option></select>
-</div>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<div id="code" class="card" style="display:none"><h3>2. Code Edition</h3>
-<select id="edition"><option>NEC 2023</option><option>NEC 2020</option><option>NEC 2017</option></select>
-<button onclick="start()">Continue</button></div>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
 
-<div id="menu" class="card" style="display:none"><h3>3. Workflow</h3><div class="grid">
-<button onclick="show('blueprint')">Upload Blueprints</button>
-<button onclick="show('room')">Manual Room / NEC</button>
-<button onclick="show('estimate')">Manual Estimate</button>
-<button onclick="show('materials')">Materials & Pricing</button>
-<button onclick="show('labor')">Labor Rates</button>
-</div></div>
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
 
-<div id="blueprint" class="card" style="display:none"><h3>Blueprint Upload</h3><input type="file"></div>
+        .sidebar {
+            width: 250px;
+            background-color: var(--surface);
+            padding: 20px 0;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
 
-<div id="room" class="card" style="display:none"><h3>Manual Room / NEC</h3>
-<input id="sqft" type="number" placeholder="Square footage">
-<input id="amps" type="number" placeholder="Circuit amps">
-<button onclick="runNec()">Calculate NEC</button>
-<pre id="necout"></pre></div>
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--surface-light);
+            margin-bottom: 20px;
+        }
 
-<div id="estimate" class="card" style="display:none"><h3>Manual Estimate</h3>
-<input id="title" placeholder="Title">
-<textarea id="desc" placeholder="Description"></textarea>
-<button onclick="saveEst()">Save Estimate</button>
-<pre id="estout"></pre></div>
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-<div id="materials" class="card" style="display:none"><h3>Materials</h3>
-<input id="mq" placeholder="Search query">
-<button onclick="searchMat()">Search prices</button>
-<pre id="matout"></pre>
-<ul id="matlist"></ul></div>
+        .nav-menu {
+            list-style: none;
+        }
 
-<div id="labor" class="card" style="display:none"><h3>Labor Rates</h3>
-<input id="state" placeholder="State" value="Maryland">
-<button onclick="runLabor()">Compare rates</button>
-<pre id="laborout"></pre></div>
+        .nav-item {
+            margin-bottom: 5px;
+        }
 
-<script>
-let type='';
-function setType(t){type=t;document.getElementById('code').style.display='block';setTimeout(()=>document.getElementById('code').scrollIntoView({behavior:'smooth'}),100);}
-function start(){document.getElementById('menu').style.display='block';document.getElementById('menu').scrollIntoView({behavior:'smooth'});}
-function show(id){['blueprint','room','estimate','materials','labor'].forEach(x=>document.getElementById(x).style.display=x===id?'block':'none');}
-async function runNec(){const r=await fetch('/api/nec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sqft:document.getElementById('sqft').value,amps:document.getElementById('amps').value})});document.getElementById('necout').textContent=(await r.json()).report;}
-async function saveEst(){const r=await fetch('/api/estimate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:document.getElementById('title').value,desc:document.getElementById('desc').value})});document.getElementById('estout').textContent=JSON.stringify(await r.json(),null,2);}
-async function searchMat(){const r=await fetch('/api/price-search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:document.getElementById('mq').value})});document.getElementById('matout').textContent=JSON.stringify(await r.json(),null,2);}
-async function runLabor(){const r=await fetch('/api/labor-compare',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:document.getElementById('state').value})});document.getElementById('laborout').textContent=JSON.stringify(await r.json(),null,2);}
-fetch('/api/materials').then(r=>r.json()).then(d=>{const u=document.getElementById('matlist');d.forEach(m=>{const li=document.createElement('li');li.textContent=m.description+' $'+m.unit_price;u.appendChild(li);});});
-</script>
-</div></body></html>
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--surface-light);
+            color: var(--text);
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .content-header {
+            margin-bottom: 30px;
+        }
+
+        .content-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .content-header p {
+            color: var(--text-secondary);
+        }
+
+        .card {
+            background-color: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--surface-light);
+            background-color: var(--background);
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .button-secondary {
+            background-color: var(--surface-light);
+        }
+
+        .button-secondary:hover {
+            background-color: #475569;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .grid-item {
+            background-color: var(--background);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .grid-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .grid-item i {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .pre-box {
+            background-color: var(--background);
+            padding: 16px;
+            border-radius: 8px;
+            overflow: auto;
+            max-height: 300px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-top: 16px;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .material-list {
+            margin-top: 16px;
+        }
+
+        .material-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid var(--surface-light);
+        }
+
+        .material-item:last-child {
+            border-bottom: none;
+        }
+
+        .material-name {
+            font-weight: 500;
+        }
+
+        .material-price {
+            color: var(--primary);
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .progress-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--surface-light);
+            z-index: -1;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 33.33%;
+        }
+
+        .progress-step.active {
+            color: var(--primary);
+        }
+
+        .progress-step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--surface-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-step.active .progress-step-number {
+            background-color: var(--primary);
+        }
+
+        .progress-step.completed .progress-step-number {
+            background-color: #10b981;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 999;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding-top: 70px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-indicator {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .progress-step {
+                width: 100%;
+            }
+
+            .progress-step::before {
+                content: '';
+                position: absolute;
+                top: 30px;
+                left: 15px;
+                width: 2px;
+                height: 30px;
+                background-color: var(--surface-light);
+                z-index: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-bolt"></i> Judith Estimator</h1>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-section="building-type">
+                            <i class="fas fa-building"></i> Building Type
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="code-edition">
+                            <i class="fas fa-book"></i> Code Edition
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="blueprint">
+                            <i class="fas fa-drafting-compass"></i> Blueprints
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="room">
+                            <i class="fas fa-home"></i> Room / NEC
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="materials">
+                            <i class="fas fa-box"></i> Materials
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="labor">
+                            <i class="fas fa-hard-hat"></i> Labor Rates
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="estimate">
+                            <i class="fas fa-file-invoice"></i> Estimate
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Electrical Estimation Tool</h1>
+                <p>Professional electrical estimation software for residential and commercial projects</p>
+            </div>
+
+            <div class="progress-indicator">
+                <div class="progress-step active" id="step1">
+                    <div class="progress-step-number">1</div>
+                    <span>Building Type</span>
+                </div>
+                <div class="progress-step" id="step2">
+                    <div class="progress-step-number">2</div>
+                    <span>Code Edition</span>
+                </div>
+                <div class="progress-step" id="step3">
+                    <div class="progress-step-number">3</div>
+                    <span>Estimation</span>
+                </div>
+            </div>
+
+            <!-- Building Type Section -->
+            <section id="building-type" class="card">
+                <h2>1. Building Type</h2>
+                <p>Select the type of building you're working with:</p>
+
+                <div class="grid">
+                    <div class="grid-item" onclick="setType('Residential')">
+                        <i class="fas fa-home"></i>
+                        <h3>Residential</h3>
+                        <p>Homes, apartments, multi-family units</p>
+                    </div>
+                    <div class="grid-item" onclick="showTypeSelect()">
+                        <i class="fas fa-building"></i>
+                        <h3>Commercial</h3>
+                        <p>Office buildings, retail spaces</p>
+                    </div>
+                    <div class="grid-item" onclick="showTypeSelect()">
+                        <i class="fas fa-industry"></i>
+                        <h3>Industrial</h3>
+                        <p>Warehouses, manufacturing facilities</p>
+                    </div>
+                    <div class="grid-item" onclick="showTypeSelect()">
+                        <i class="fas fa-hospital"></i>
+                        <h3>Institutional</h3>
+                        <p>Schools, hospitals, government buildings</p>
+                    </div>
+                </div>
+
+                <div id="commercial-type-select" style="display: none;">
+                    <div class="form-group">
+                        <label for="commercial-type">Commercial/Industrial Type:</label>
+                        <select id="commercial-type" onchange="if(this.value) setType(this.value)">
+                            <option value="">Select building type...</option>
+                            <option>office</option>
+                            <option>schools</option>
+                            <option>hospitals</option>
+                            <option>stores</option>
+                            <option>warehouses</option>
+                            <option>industrial</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="continueToCode()">
+                        <i class="fas fa-arrow-right"></i> Continue to Code Selection
+                    </button>
+                </div>
+            </section>
+
+            <!-- Code Edition Section -->
+            <section id="code-edition" class="card" style="display: none;">
+                <h2>2. Code Edition</h2>
+                <p>Select the appropriate electrical code edition for your project:</p>
+
+                <div class="form-group">
+                    <label for="edition">Electrical Code Edition:</label>
+                    <select id="edition">
+                        <option>NEC 2023</option>
+                        <option>NEC 2020</option>
+                        <option>NEC 2017</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button class="button-secondary" onclick="backToBuildingType()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button onclick="startEstimation()">
+                        <i class="fas fa-play"></i> Start Estimation
+                    </button>
+                </div>
+            </section>
+
+            <!-- Blueprint Upload Section -->
+            <section id="blueprint" class="card" style="display: none;">
+                <h2>Blueprint Upload</h2>
+                <p>Upload your blueprints for automated calculations:</p>
+
+                <div class="form-group">
+                    <label for="blueprint-file">Select File:</label>
+                    <input type="file" id="blueprint-file" accept=".pdf,.dwg,.png,.jpg">
+                </div>
+
+                <div class="button-group">
+                    <button class="button-secondary" onclick="showSection('code-edition')">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button onclick="uploadBlueprint()">
+                        <i class="fas fa-upload"></i> Upload Blueprint
+                    </button>
+                </div>
+            </section>
+
+            <!-- Room / NEC Section -->
+            <section id="room" class="card" style="display: none;">
+                <h2>Manual Room / NEC Calculation</h2>
+                <p>Calculate electrical requirements based on room specifications:</p>
+
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="sqft">Square Footage:</label>
+                        <input type="number" id="sqft" placeholder="Enter square footage">
+                    </div>
+                    <div class="form-group">
+                        <label for="amps">Circuit Amps:</label>
+                        <input type="number" id="amps" placeholder="Enter circuit amps">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="button-secondary" onclick="showSection('code-edition')">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button onclick="runNec()">
+                        <i class="fas fa-calculator"></i> Calculate NEC
+                    </button>
+                </div>
+
+                <div id="nec-output" class="pre-box" style="display: none;"></div>
+            </section>
+
+            <!-- Materials Section -->
+            <section id="materials" class="card" style="display: none;">
+                <h2>Materials & Pricing</h2>
+                <p>Search for materials and pricing information:</p>
+
+                <div class="form-group">
+                    <label for="material-query">Search Materials:</label>
+                    <input type="text" id="material-query" placeholder="Enter material description or keyword">
+                </div>
+
+                <div class="button-group">
+                    <button class="button-secondary" onclick="showSection('code-edition')">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button onclick="searchMaterials()">
+                        <i class="fas fa-search"></i> Search Prices
+                    </button>
+                </div>
+
+                <div id="materials-output" class="pre-box" style="display: none;"></div>
+                <div id="materials-list" class="material-list" style="display: none;"></div>
+            </section>
+
+            <!-- Labor Rates Section -->
+            <section id="labor" class="card" style="display: none;">
+                <h2>Labor Rates</h2>
+                <p>Compare labor rates across different sources:</p>
+
+                <div class="form-group">
+                    <label for="state">State:</label>
+                    <input type="text" id="state" value="Maryland" placeholder="Enter state">
+                </div>
+
+                <div class="button-group">
+                    <button class="button-secondary" onclick="showSection('code-edition')">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button onclick="compareLaborRates()">
+                        <i class="fas fa-chart-bar"></i> Compare Rates
+                    </button>
+                </div>
+
+                <div id="labor-output" class="pre-box" style="display: none;"></div>
+            </section>
+
+            <!-- Estimate Section -->
+            <section id="estimate" class="card" style="display: none;">
+                <h2>Manual Estimate</h2>
+                <p>Create a new estimate manually:</p>
+
+                <div class="form-group">
+                    <label for="estimate-title">Estimate Title:</label>
+                    <input type="text" id="estimate-title" placeholder="Enter estimate title">
+                </div>
+
+                <div class="form-group">
+                    <label for="estimate-description">Description:</label>
+                    <textarea id="estimate-description" placeholder="Enter project description"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="button-secondary" onclick="showSection('code-edition')">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button onclick="saveEstimate()">
+                        <i class="fas fa-save"></i> Save Estimate
+                    </button>
+                </div>
+
+                <div id="estimate-output" class="pre-box" style="display: none;"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Global variables
+        let buildingType = '';
+        let currentStep = 1;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup navigation
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    showSection(section);
+
+                    // Update active nav link
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Setup mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('open');
+            });
+
+            // Load materials list on page load
+            loadMaterialsList();
+        });
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('main section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show selected section
+            const selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.style.display = 'block';
+
+                // Update progress indicator if applicable
+                if (sectionId === 'code-edition') {
+                    updateProgress(2);
+                } else if (['blueprint', 'room', 'materials', 'labor', 'estimate'].includes(sectionId)) {
+                    updateProgress(3);
+                }
+            }
+
+            // Close mobile menu if open
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        function updateProgress(step) {
+            currentStep = step;
+            for (let i = 1; i <= 3; i++) {
+                const stepElement = document.getElementById(`step${i}`);
+                if (i < step) {
+                    stepElement.classList.add('completed');
+                    stepElement.classList.remove('active');
+                } else if (i === step) {
+                    stepElement.classList.add('active');
+                    stepElement.classList.remove('completed');
+                } else {
+                    stepElement.classList.remove('active', 'completed');
+                }
+            }
+        }
+
+        // Building type functions
+        function setType(type) {
+            buildingType = type;
+            showSection('code-edition');
+            updateProgress(2);
+
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === 'code-edition') {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        function showTypeSelect() {
+            document.getElementById('commercial-type-select').style.display = 'block';
+        }
+
+        function continueToCode() {
+            if (buildingType) {
+                showSection('code-edition');
+                updateProgress(2);
+
+                // Update active nav link
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-section') === 'code-edition') {
+                        link.classList.add('active');
+                    }
+                });
+            } else {
+                alert('Please select a building type first.');
+            }
+        }
+
+        function backToBuildingType() {
+            showSection('building-type');
+            updateProgress(1);
+
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === 'building-type') {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        function startEstimation() {
+            showSection('blueprint');
+            updateProgress(3);
+
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === 'blueprint') {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // API functions
+        async function uploadBlueprint() {
+            const fileInput = document.getElementById('blueprint-file');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            // In a real application, this would upload the file to the server
+            alert('Blueprint upload functionality would be implemented here.');
+        }
+
+        async function runNec() {
+            const sqft = document.getElementById('sqft').value;
+            const amps = document.getElementById('amps').value;
+
+            if (!sqft || !amps) {
+                alert('Please enter both square footage and circuit amps.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/nec', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sqft: sqft,
+                        amps: amps
+                    })
+                });
+
+                const data = await response.json();
+                const output = document.getElementById('nec-output');
+                output.textContent = data.report;
+                output.style.display = 'block';
+            } catch (error) {
+                console.error('Error calculating NEC:', error);
+                alert('Error calculating NEC. Please try again.');
+            }
+        }
+
+        async function searchMaterials() {
+            const query = document.getElementById('material-query').value;
+
+            if (!query) {
+                alert('Please enter a search query.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/price-search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query
+                    })
+                });
+
+                const data = await response.json();
+                const output = document.getElementById('materials-output');
+                output.textContent = JSON.stringify(data, null, 2);
+                output.style.display = 'block';
+
+                // Hide materials list when showing search results
+                document.getElementById('materials-list').style.display = 'none';
+            } catch (error) {
+                console.error('Error searching materials:', error);
+                alert('Error searching materials. Please try again.');
+            }
+        }
+
+        function loadMaterialsList() {
+            fetch('/api/materials')
+                .then(response => response.json())
+                .then(data => {
+                    const materialsList = document.getElementById('materials-list');
+                    materialsList.innerHTML = '';
+
+                    data.forEach(material => {
+                        const item = document.createElement('div');
+                        item.className = 'material-item';
+                        item.innerHTML = `
+                            <span class="material-name">${material.description}</span>
+                            <span class="material-price">$${material.unit_price}</span>
+                        `;
+                        materialsList.appendChild(item);
+                    });
+
+                    materialsList.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error loading materials:', error);
+                });
+        }
+
+        async function compareLaborRates() {
+            const state = document.getElementById('state').value;
+
+            if (!state) {
+                alert('Please enter a state.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/labor-compare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        state: state
+                    })
+                });
+
+                const data = await response.json();
+                const output = document.getElementById('labor-output');
+                output.textContent = JSON.stringify(data, null, 2);
+                output.style.display = 'block';
+            } catch (error) {
+                console.error('Error comparing labor rates:', error);
+                alert('Error comparing labor rates. Please try again.');
+            }
+        }
+
+        async function saveEstimate() {
+            const title = document.getElementById('estimate-title').value;
+            const description = document.getElementById('estimate-description').value;
+
+            if (!title || !description) {
+                alert('Please enter both title and description.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/estimate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        desc: description
+                    })
+                });
+
+                const data = await response.json();
+                const output = document.getElementById('estimate-output');
+                output.textContent = JSON.stringify(data, null, 2);
+                output.style.display = 'block';
+            } catch (error) {
+                console.error('Error saving estimate:', error);
+                alert('Error saving estimate. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>
