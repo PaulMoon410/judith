@@ -32,12 +32,6 @@ def index():
         return "Submitted! We'll be in touch."
     return render_template("index.html")
 
-@app.route("/api/estimate", methods=["POST"])
-def api_estimate():
-    data = request.get_json(silent=True) or {}
-    return jsonify({"status": "received", "name": data.get("name"), "email": data.get("email"), "desc": data.get("desc")})
-
-
 @app.route("/api/materials")
 def api_materials():
     pb = storage.load_pricebook()
@@ -58,6 +52,20 @@ def api_price_search():
         return jsonify(material_prices.search_material_prices(q))
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/estimates")
+def api_estimates_list():
+    return jsonify(storage.list_saved_estimates())
+
+
+@app.route("/api/estimate", methods=["POST"])
+def api_estimate_create():
+    data = request.get_json(silent=True) or {}
+    from estimator.models import Estimate, LineItem
+    est = Estimate(title=data.get("title","Untitled"), state=data.get("state","Maryland"))
+    storage.save_estimate(est)
+    return jsonify({"saved": True, "title": est.title})
 
 
 if __name__ == "__main__":
