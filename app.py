@@ -47,11 +47,19 @@ def api_labor_rate():
 @app.route("/api/price-search", methods=["POST"])
 def api_price_search():
     data = request.get_json(silent=True) or {}
-    q = data.get("query", "")
+    q = (data.get("query") or "").strip()
+    pb = storage.load_pricebook()
+    key = "price_search:" + q.lower()
+    cached = storage.get_cached_ai_value(pb, key)
+    if cached is not None:
+        return jsonify(cached)
     try:
-        return jsonify(material_prices.search_material_prices(q))
+        offers = material_prices.search_material_prices(q)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    storage.set_cached_ai_value(pb, key, offers)
+    storage.save_pricebook(pb)
+    return jsonify(offers)
 
 
 @app.route("/api/estimates")
