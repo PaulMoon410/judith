@@ -27,17 +27,63 @@ def get_cached_ai_value(pricebook: dict[str, Any], key: str) -> Any:
 
 def set_cached_ai_value(pricebook: dict[str, Any], key: str, value: Any) -> None:
     get_ai_cache(pricebook)[key] = {"ts": time.time(), "value": value}
+def _ftp_config():
+    host = os.environ.get("FTP_HOST", "").strip()
+    if not host:
+        return None
+    return (
+        host,
+        os.environ.get("FTP_USER", "").strip(),
+        os.environ.get("FTP_PASS", "").strip(),
+        os.environ.get("FTP_PRICEBOOK_PATH", "/ai/brain/pricebook.json").strip(),
+    )
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 ESTIMATES_DIR = os.path.join(BASE_DIR, "estimates")
 PRICEBOOK_PATH = os.path.join(DATA_DIR, "pricebook.json")
 
 
+def _ftp_load(path, host, user, password):
+    try:
+        buf = io.BytesIO()
+        with ftplib.FTP(host, timeout=20) as ftp:
+            ftp.login(user, password)
+            ftp.retrbinary("RETR " + path, buf.write)
+        return json.loads(buf.getvalue().decode("utf-8"))
+    except Exception:
+        return None
+
+
+def _ftp_save(path, host, user, password, data):
+    try:
+        buf = io.BytesIO(json.dumps(data, indent=2).encode("utf-8"))
+        with ftplib.FTP(host, timeout=20) as ftp:
+            ftp.login(user, password)
+            ftp.storbinary("STOR " + path, buf)
+        return True
+    except Exception:
+        return False
+
+
 def load_pricebook() -> dict[str, Any]:
+    cfg = _ftp_config()
+    if cfg:
+        host, user, password, path = cfg
+        data = _ftp_load(path, host, user, password)
+        if data is not None:
+            return data
     with open(PRICEBOOK_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
 def save_pricebook(pricebook: dict[str, Any]) -> None:
+    cfg = _ftp_config()
+    if cfg:
+        host, user, password, path = cfg
+        if _ftp_save(path, host, user, password, pricebook):
+            return
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(PRICEBOOK_PATH, "w", encoding="utf-8") as f:
         json.dump(pricebook, f, indent=2)
