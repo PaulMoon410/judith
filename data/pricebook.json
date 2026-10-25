@@ -1,0 +1,882 @@
+{
+  "labor_rate_per_hour": 74.0,
+  "labor_rate_basis": "Multi-source blend; see data/labor_rate_audit.md",
+  "labor_rate_sources": [
+    {
+      "key": "bls_wage",
+      "label": "BLS OEWS wage (Electricians, SOC 47-2111)",
+      "kind": "wage",
+      "low": 18.0,
+      "typical": 29.98,
+      "high": 48.0,
+      "as_of": "May 2024",
+      "url": "https://www.bls.gov/ooh/construction-and-extraction/electricians.htm",
+      "note": "National mean wage; burdened to billable rate."
+    },
+    {
+      "key": "contractor_survey",
+      "label": "Contractor rate survey (Housecall Pro)",
+      "kind": "billing",
+      "low": 40.0,
+      "typical": 70.0,
+      "high": 100.0,
+      "as_of": "2026",
+      "url": "https://www.housecallpro.com/resources/how-to-price-electrical-work/",
+      "note": "Journeyman vs master split; service call $100-200."
+    },
+    {
+      "key": "retail_billing",
+      "label": "Consumer cost guide (latestcost / HomeAdvisor)",
+      "kind": "billing",
+      "low": 50.0,
+      "typical": 75.0,
+      "high": 120.0,
+      "as_of": "2026",
+      "url": "https://latestcost.com/electrician-cost-per-hour-united-states/",
+      "note": "Residential billing range, normal business hours."
+    }
+  ],
+  "tax_rate_percent": 7.5,
+  "markup_percent": 0.0,
+  "consumables_percent": 2.0,
+  "materials": [
+    {
+      "name": "Duplex Outlet 15A",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 3.1,
+      "labor_unit_price": 16.25
+    },
+    {
+      "name": "Duplex Outlet 20A",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 11.01,
+      "labor_unit_price": 16.25
+    },
+    {
+      "name": "Duplex Outlet 15A GFCI",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 29.57,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "Duplex Outlet 20A GFCI",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 33.39,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "AFCI/GFCI Combo Outlet",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 34.98,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "USB/USB-C Combo Outlet",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 49.98,
+      "labor_unit_price": 22.75
+    },
+    {
+      "name": "Single-Pole Switch",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 1.0,
+      "labor_unit_price": 16.25
+    },
+    {
+      "name": "3-Way Switch",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 2.58,
+      "labor_unit_price": 22.75
+    },
+    {
+      "name": "4-Way Switch",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 16.98,
+      "labor_unit_price": 26.0
+    },
+    {
+      "name": "Dimmer Switch",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 25.99,
+      "labor_unit_price": 22.75
+    },
+    {
+      "name": "Smart Wi-Fi Switch/Dimmer",
+      "category": "Devices",
+      "unit": "ea",
+      "unit_price": 48.67,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "Electrical Box (single gang)",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 1.75,
+      "labor_unit_price": 13.0
+    },
+    {
+      "name": "Electrical Box (double gang)",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 2.75,
+      "labor_unit_price": 16.25
+    },
+    {
+      "name": "4-Square Box w/ Mud Ring",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 4.84,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "Round Ceiling Box",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 2.5,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "Ceiling Fan Box (rated, w/ bar hanger)",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 12.0,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "Weatherproof In-Use Cover",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 18.0,
+      "labor_unit_price": 16.25
+    },
+    {
+      "name": "Single-Gang Wall Plate (standard)",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 0.75,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "Single-Gang Decora Wall Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 1.25,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "Double-Gang Wall Plate (standard)",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 1.5,
+      "labor_unit_price": 8.0
+    },
+    {
+      "name": "Double-Gang Decora Wall Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 2.5,
+      "labor_unit_price": 8.0
+    },
+    {
+      "name": "Blank Wall Plate (single-gang)",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 0.75,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "Stainless Steel Wall Plate (single-gang)",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 3.5,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "14/2 Romex NM-B Wire",
+      "category": "Wire & Cable",
+      "unit": "ft",
+      "unit_price": 0.5,
+      "labor_unit_price": 2.35
+    },
+    {
+      "name": "12/2 Romex NM-B Wire",
+      "category": "Wire & Cable",
+      "unit": "ft",
+      "unit_price": 0.72,
+      "labor_unit_price": 2.35
+    },
+    {
+      "name": "10/2 Romex NM-B Wire",
+      "category": "Wire & Cable",
+      "unit": "ft",
+      "unit_price": 1.23,
+      "labor_unit_price": 2.6
+    },
+    {
+      "name": "14/3 Romex NM-B Wire",
+      "category": "Wire & Cable",
+      "unit": "ft",
+      "unit_price": 0.66,
+      "labor_unit_price": 2.5
+    },
+    {
+      "name": "12/3 Romex NM-B Wire",
+      "category": "Wire & Cable",
+      "unit": "ft",
+      "unit_price": 0.89,
+      "labor_unit_price": 2.5
+    },
+    {
+      "name": "MC Cable 12/2",
+      "category": "Wire & Cable",
+      "unit": "ft",
+      "unit_price": 1.11,
+      "labor_unit_price": 2.75
+    },
+    {
+      "name": "THHN Wire 12 AWG (in conduit)",
+      "category": "Wire & Cable",
+      "unit": "ft",
+      "unit_price": 0.29,
+      "labor_unit_price": 0.35
+    },
+    {
+      "name": "THHN Wire 10 AWG (in conduit)",
+      "category": "Wire & Cable",
+      "unit": "ft",
+      "unit_price": 0.44,
+      "labor_unit_price": 0.4
+    },
+    {
+      "name": "EMT Conduit 1/2 in",
+      "category": "Conduit",
+      "unit": "ft",
+      "unit_price": 0.7,
+      "labor_unit_price": 5.2
+    },
+    {
+      "name": "EMT Conduit 3/4 in",
+      "category": "Conduit",
+      "unit": "ft",
+      "unit_price": 1.18,
+      "labor_unit_price": 5.85
+    },
+    {
+      "name": "EMT Connector/Coupling",
+      "category": "Conduit",
+      "unit": "ea",
+      "unit_price": 0.85,
+      "labor_unit_price": 3.25
+    },
+    {
+      "name": "PVC Conduit 3/4 in Sch40",
+      "category": "Conduit",
+      "unit": "ft",
+      "unit_price": 0.76,
+      "labor_unit_price": 4.55
+    },
+    {
+      "name": "15A Single-Pole Breaker",
+      "category": "Breakers",
+      "unit": "ea",
+      "unit_price": 8.0,
+      "labor_unit_price": 9.75
+    },
+    {
+      "name": "20A Single-Pole Breaker",
+      "category": "Breakers",
+      "unit": "ea",
+      "unit_price": 8.5,
+      "labor_unit_price": 9.75
+    },
+    {
+      "name": "30A Single-Pole Breaker",
+      "category": "Breakers",
+      "unit": "ea",
+      "unit_price": 10.5,
+      "labor_unit_price": 13.0
+    },
+    {
+      "name": "20A GFCI Breaker",
+      "category": "Breakers",
+      "unit": "ea",
+      "unit_price": 57.09,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "20A AFCI Breaker",
+      "category": "Breakers",
+      "unit": "ea",
+      "unit_price": 59.71,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "20A Dual-Function AFCI/GFCI Breaker",
+      "category": "Breakers",
+      "unit": "ea",
+      "unit_price": 66.8,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "30A Two-Pole Breaker (dryer/AC)",
+      "category": "Breakers",
+      "unit": "ea",
+      "unit_price": 18.24,
+      "labor_unit_price": 16.25
+    },
+    {
+      "name": "40A Two-Pole Breaker (range)",
+      "category": "Breakers",
+      "unit": "ea",
+      "unit_price": 18.24,
+      "labor_unit_price": 16.25
+    },
+    {
+      "name": "50A Two-Pole Breaker (range/EVSE)",
+      "category": "Breakers",
+      "unit": "ea",
+      "unit_price": 18.24,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "60A Two-Pole Breaker (subpanel feed)",
+      "category": "Breakers",
+      "unit": "ea",
+      "unit_price": 18.24,
+      "labor_unit_price": 22.75
+    },
+    {
+      "name": "100A Load Center Panel",
+      "category": "Panels",
+      "unit": "ea",
+      "unit_price": 110.0,
+      "labor_unit_price": 260.0
+    },
+    {
+      "name": "150A Load Center Panel",
+      "category": "Panels",
+      "unit": "ea",
+      "unit_price": 150.0,
+      "labor_unit_price": 325.0
+    },
+    {
+      "name": "200A Load Center Panel",
+      "category": "Panels",
+      "unit": "ea",
+      "unit_price": 270.0,
+      "labor_unit_price": 390.0
+    },
+    {
+      "name": "100A Indoor Subpanel",
+      "category": "Panels",
+      "unit": "ea",
+      "unit_price": 95.0,
+      "labor_unit_price": 195.0
+    },
+    {
+      "name": "Recessed LED Can Light",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 22.0,
+      "labor_unit_price": 48.75
+    },
+    {
+      "name": "Flush-Mount Ceiling Fixture",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 35.0,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "Exterior Wall Light Fixture",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 45.0,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "Bath Exhaust Fan",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 65.0,
+      "labor_unit_price": 81.25
+    },
+    {
+      "name": "Smoke/CO Combo Detector (hardwired)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 59.97,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "Ground Rod 8ft Copper-Clad",
+      "category": "Grounding",
+      "unit": "ea",
+      "unit_price": 29.01,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "Ground Rod Clamp",
+      "category": "Grounding",
+      "unit": "ea",
+      "unit_price": 4.0,
+      "labor_unit_price": 9.75
+    },
+    {
+      "name": "Bonding Jumper #6 Bare Copper",
+      "category": "Grounding",
+      "unit": "ea",
+      "unit_price": 3.5,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "Wire Nuts (box of 100)",
+      "category": "Misc / Consumables",
+      "unit": "box",
+      "unit_price": 6.5
+    },
+    {
+      "name": "Cable Staples (box of 50)",
+      "category": "Misc / Consumables",
+      "unit": "box",
+      "unit_price": 3.0
+    },
+    {
+      "name": "3-Gang New-Work Nail-On Box",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 4.25,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "Single-Gang Old-Work Box",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 3.5,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "2-Gang Old-Work Box",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 6.5,
+      "labor_unit_price": 22.75
+    },
+    {
+      "name": "3-Gang Old-Work Box",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 10.0,
+      "labor_unit_price": 26.0
+    },
+    {
+      "name": "4-Square Box (deep, blank)",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 4.5,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "4-Square Mud Ring (1-gang)",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 1.75,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "4-Square Mud Ring (2-gang)",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 2.75,
+      "labor_unit_price": 8.0
+    },
+    {
+      "name": "4-11/16 Square Box (deep)",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 8.0,
+      "labor_unit_price": 22.75
+    },
+    {
+      "name": "Octagon Ceiling Box",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 3.5,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "Pancake Ceiling Box",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 3.0,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "Fan-Rated Retrofit Brace Box",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 29.5,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "Junction Box (4 in square, blank cover)",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 6.0,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "Weatherproof 1-Gang Box",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 7.0,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "Weatherproof 2-Gang Box",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 14.0,
+      "labor_unit_price": 22.75
+    },
+    {
+      "name": "Weatherproof Duplex Cover (while-in-use)",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 18.0,
+      "labor_unit_price": 8.0
+    },
+    {
+      "name": "Weatherproof Toggle Cover",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 10.0,
+      "labor_unit_price": 8.0
+    },
+    {
+      "name": "Floor Box Kit (single receptacle)",
+      "category": "Boxes",
+      "unit": "ea",
+      "unit_price": 45.0,
+      "labor_unit_price": 65.0
+    },
+    {
+      "name": "Single-Gang Toggle Wall Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 0.75,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "Single-Gang Duplex Receptacle Wall Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 0.75,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "Single-Gang Blank Wall Plate (metal)",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 1.25,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "2-Gang Toggle Wall Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 1.5,
+      "labor_unit_price": 8.0
+    },
+    {
+      "name": "2-Gang Duplex Wall Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 1.5,
+      "labor_unit_price": 8.0
+    },
+    {
+      "name": "2-Gang Toggle/Decora Combo Wall Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 2.5,
+      "labor_unit_price": 8.0
+    },
+    {
+      "name": "2-Gang Blank Wall Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 1.5,
+      "labor_unit_price": 8.0
+    },
+    {
+      "name": "3-Gang Toggle Wall Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 2.5,
+      "labor_unit_price": 9.75
+    },
+    {
+      "name": "3-Gang Decora Wall Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 3.5,
+      "labor_unit_price": 9.75
+    },
+    {
+      "name": "4-Gang Wall Plate (toggle)",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 4.0,
+      "labor_unit_price": 11.0
+    },
+    {
+      "name": "Single-Gang Stainless Steel Decora Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 4.5,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "Single-Gang Weatherproof Device Cover Plate",
+      "category": "Plates",
+      "unit": "ea",
+      "unit_price": 2.0,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "4-in LED Recessed Wafer Light",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 18.0,
+      "labor_unit_price": 48.75
+    },
+    {
+      "name": "6-in LED Recessed Wafer Light",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 22.0,
+      "labor_unit_price": 48.75
+    },
+    {
+      "name": "LED Recessed Retrofit Trim (4/6 in)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 15.0,
+      "labor_unit_price": 26.0
+    },
+    {
+      "name": "Vanity Light Fixture (allowance)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 75.0,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "Pendant Light Fixture (allowance)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 90.0,
+      "labor_unit_price": 48.75
+    },
+    {
+      "name": "Chandelier Fixture (allowance)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 175.0,
+      "labor_unit_price": 81.25
+    },
+    {
+      "name": "LED Strip/Under-Cabinet Light (2 ft)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 35.0,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "LED Strip/Under-Cabinet Light (4 ft)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 55.0,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "LED Shop Light (4 ft)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 45.0,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "Exterior LED Floodlight (motion sensor)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 65.0,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "Exterior Soffit/Canopy LED Fixture",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 45.0,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "Landscape LED Path Light",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 35.0,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "Emergency Light (battery backup)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 65.0,
+      "labor_unit_price": 48.75
+    },
+    {
+      "name": "Exit Sign (LED, battery backup)",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 80.0,
+      "labor_unit_price": 48.75
+    },
+    {
+      "name": "Bath Exhaust Fan/Light Combo",
+      "category": "Lighting & Fixtures",
+      "unit": "ea",
+      "unit_price": 125.0,
+      "labor_unit_price": 97.5
+    },
+    {
+      "name": "Smoke Alarm (hardwired, battery backup)",
+      "category": "Life Safety",
+      "unit": "ea",
+      "unit_price": 28.0,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "Smoke Alarm (battery powered)",
+      "category": "Life Safety",
+      "unit": "ea",
+      "unit_price": 22.0,
+      "labor_unit_price": 16.25
+    },
+    {
+      "name": "CO Alarm (hardwired, battery backup)",
+      "category": "Life Safety",
+      "unit": "ea",
+      "unit_price": 32.0,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "CO Alarm (battery powered)",
+      "category": "Life Safety",
+      "unit": "ea",
+      "unit_price": 25.0,
+      "labor_unit_price": 16.25
+    },
+    {
+      "name": "Smoke/CO Combo Alarm (hardwired, interconnected)",
+      "category": "Life Safety",
+      "unit": "ea",
+      "unit_price": 59.97,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "Smoke Alarm Interconnect Harness/Adapter",
+      "category": "Life Safety",
+      "unit": "ea",
+      "unit_price": 12.0,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "AC Disconnect 30A Non-Fused, NEMA 3R",
+      "category": "Disconnects",
+      "unit": "ea",
+      "unit_price": 22.0,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "AC Disconnect 60A Non-Fused, NEMA 3R",
+      "category": "Disconnects",
+      "unit": "ea",
+      "unit_price": 22.0,
+      "labor_unit_price": 32.5
+    },
+    {
+      "name": "AC Disconnect 30A Fused, NEMA 3R",
+      "category": "Disconnects",
+      "unit": "ea",
+      "unit_price": 30.0,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "AC Disconnect 60A Fused, NEMA 3R",
+      "category": "Disconnects",
+      "unit": "ea",
+      "unit_price": 34.97,
+      "labor_unit_price": 39.0
+    },
+    {
+      "name": "Fuse Set for Fused Disconnect (pair)",
+      "category": "Disconnects",
+      "unit": "set",
+      "unit_price": 18.0,
+      "labor_unit_price": 6.5
+    },
+    {
+      "name": "Outdoor Disconnect Mounting Backplate",
+      "category": "Disconnects",
+      "unit": "ea",
+      "unit_price": 12.0,
+      "labor_unit_price": 9.75
+    },
+    {
+      "name": "Liquidtight Whip (6 ft, fittings included)",
+      "category": "Disconnects",
+      "unit": "ea",
+      "unit_price": 25.0,
+      "labor_unit_price": 19.5
+    },
+    {
+      "name": "Liquidtight Flexible Conduit (1/2 in)",
+      "category": "Disconnects",
+      "unit": "ft",
+      "unit_price": 1.75,
+      "labor_unit_price": 5.2
+    },
+    {
+      "name": "Liquidtight Straight Connector (1/2 in)",
+      "category": "Disconnects",
+      "unit": "ea",
+      "unit_price": 4.0,
+      "labor_unit_price": 3.25
+    },
+    {
+      "name": "Liquidtight 90-Degree Connector (1/2 in)",
+      "category": "Disconnects",
+      "unit": "ea",
+      "unit_price": 5.0,
+      "labor_unit_price": 3.25
+    },
+    {
+      "name": "Disconnect Label / Circuit Identification",
+      "category": "Disconnects",
+      "unit": "ea",
+      "unit_price": 2.0,
+      "labor_unit_price": 3.25
+    }
+  ]
+}

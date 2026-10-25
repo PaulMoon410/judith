@@ -1,0 +1,10 @@
+# Add any pip-installable dependencies below (one per line), e.g.:
+#   rich
+#   reportlab
+#
+# PDF text extraction and native file drag-and-drop for the desktop UI.
+pypdf>=5.0.0
+tkinterdnd2>=0.4.2
+flask
+gunicorn
+requests>=2.25.0
