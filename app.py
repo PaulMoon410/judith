@@ -84,5 +84,22 @@ def api_labor_compare():
     return jsonify({"recommended": res.recommended, "sources": [s.__dict__ for s in res.sources]})
 
 
+@app.route("/api/pricebook", methods=["GET", "PUT"])
+def api_pricebook():
+    if request.method == "GET":
+        return jsonify(storage.load_pricebook())
+    storage.save_pricebook(request.get_json(silent=True) or {})
+    return jsonify({"saved": True})
+
+
+@app.route("/api/estimates/<name>")
+def api_estimate_load(name):
+    try:
+        est = storage.load_estimate(name)
+        return jsonify(est.to_dict())
+    except FileNotFoundError:
+        return jsonify({"error": "not found"}), 404
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")))
