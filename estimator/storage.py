@@ -63,7 +63,8 @@ def _ftp_load(path, host, user, password):
             ftp.login(user, password)
             ftp.retrbinary("RETR " + path, buf.write)
         return json.loads(buf.getvalue().decode("utf-8"))
-    except Exception:
+    except Exception as e:
+        print("FTP load error:", e)
         return None
 
 
@@ -74,7 +75,8 @@ def _ftp_save(path, host, user, password, data):
             ftp.login(user, password)
             ftp.storbinary("STOR " + path, buf)
         return True
-    except Exception:
+    except Exception as e:
+        print("FTP save error:", e)
         return False
 
 
