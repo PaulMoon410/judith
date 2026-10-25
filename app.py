@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, jsonify
+from estimator import storage, material_prices, labor_rates
 import os, smtplib
 from email.message import EmailMessage
 
@@ -35,6 +36,28 @@ def index():
 def api_estimate():
     data = request.get_json(silent=True) or {}
     return jsonify({"status": "received", "name": data.get("name"), "email": data.get("email"), "desc": data.get("desc")})
+
+
+@app.route("/api/materials")
+def api_materials():
+    pb = storage.load_pricebook()
+    return jsonify([m.__dict__ for m in storage.get_materials(pb)])
+
+
+@app.route("/api/labor-rate")
+def api_labor_rate():
+    pb = storage.load_pricebook()
+    return jsonify({"rate": storage.get_labor_rate(pb)})
+
+
+@app.route("/api/price-search", methods=["POST"])
+def api_price_search():
+    data = request.get_json(silent=True) or {}
+    q = data.get("query", "")
+    try:
+        return jsonify(material_prices.search_material_prices(q))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 if __name__ == "__main__":
