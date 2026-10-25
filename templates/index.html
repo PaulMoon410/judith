@@ -147,9 +147,16 @@
         <h2>Building Type</h2>
         <div class="grid-4" id="type-buttons">
             <button onclick="setType(this, 'Residential')">Residential</button>
-            <button onclick="setType(this, 'Commercial')">Commercial</button>
-            <button onclick="setType(this, 'Industrial')">Industrial</button>
-            <button onclick="setType(this, 'Multi-family')">Multi-family</button>
+        </div>
+        <div style="margin-top:1rem">
+            <select id="occType" onchange="setTypeSelect(this)">
+                <option value="">Commercial / Industrial occupancy...</option>
+                <option>armories_auditoriums</option><option>banks</option><option>barber_beauty</option>
+                <option>churches</option><option>clubs</option><option>court_houses</option>
+                <option>garages_commercial</option><option>hospitals</option><option>hotels_motels</option>
+                <option>industrial</option><option>lodge_rooms</option><option>office</option>
+                <option>restaurants</option><option>schools</option><option>stores</option><option>warehouses</option>
+            </select>
         </div>
     </div>
 
@@ -195,6 +202,7 @@
 
 <script>
     let type = '';
+    function setTypeSelect(sel){ if(sel.value){ setType(sel, sel.value); } }
     function showLoading(){document.getElementById('loading').style.display='flex';}
     function hideLoading(){document.getElementById('loading').style.display='none';}
 
