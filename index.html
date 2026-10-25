@@ -1,485 +1,60 @@
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Judith Estimator</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --secondary: #64748b;
-            --background: #0f172a;
-            --surface: #1e293b;
-            --surface-light: #334155;
-            --text: #e2e8f0;
-            --text-secondary: #cbd5e1;
-        }
+<!doctype html><html><head><meta charset="utf-8"><title>Judith Estimator</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<style>
+body{font-family:system-ui,Arial;margin:0;background:#0f172a;color:#e2e8f0}
+.wrap{max-width:960px;margin:24px auto;padding:16px}
+.card{background:#1e293b;border-radius:12px;padding:16px;margin:12px 0}
+button{background:#3b82f6;color:#fff;border:none;padding:8px 12px;border-radius:6px;margin:4px;cursor:pointer}
+input,select,textarea{padding:8px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;margin:4px 0;width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+pre{background:#0f172a;padding:12px;border-radius:8px;overflow:auto;max-height:300px}
+</style></head><body><div class="wrap">
+<h1>Judith Electrical Estimator</h1>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<div class="card"><h2>1. Building Type</h2>
+<select id="occType"><option value="">Select building type...</option>
+<option>Residential</option>
+<option>Multi-family</option>
+<option>office</option><option>schools</option><option>hospitals</option><option>stores</option><option>warehouses</option><option>industrial</option><option>armories_auditoriums</option><option>banks</option><option>barber_beauty</option><option>churches</option><option>clubs</option><option>court_houses</option><option>garages_commercial</option><option>hotels_motels</option><option>lodge_rooms</option><option>restaurants</option>
+<option>office</option><option>schools</option><option>hospitals</option><option>stores</option><option>warehouses</option><option>industrial</option></select>
+</div>
 
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--background);
-            color: var(--text);
-            line-height: 1.6;
-        }
+<div id="code" class="card" style="display:none"><h3>2. Code Edition</h3>
+<select id="edition"><option>NEC 2023</option><option>NEC 2020</option><option>NEC 2017</option></select>
+<button id="continueBtn">Continue</button></div>
 
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
+<div id="menu" class="card" style="display:none"><h3>3. Workflow</h3><div id="workflow-buttons" class="grid">
+<button data-target="blueprint">Upload Blueprints</button>
+<button data-target="room">Manual Room / NEC</button>
+<button data-target="estimate">Manual Estimate</button>
+<button data-target="materials">Materials & Pricing</button>
+<button data-target="labor">Labor Rates</button>
+</div></div>
 
-        .sidebar {
-            width: 250px;
-            background-color: var(--surface);
-            padding: 20px 0;
-            position: fixed;
-            height: 100%;
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-        }
+<div id="blueprint" class="card" style="display:none"><h3>Blueprint Upload</h3><input type="file"></div>
 
-        .sidebar-header {
-            padding: 0 20px 20px;
-            border-bottom: 1px solid var(--surface-light);
-            margin-bottom: 20px;
-        }
+<div id="room" class="card" style="display:none"><h3>Manual Room / NEC</h3>
+<input id="sqft" type="number" placeholder="Square footage">
+<input id="amps" type="number" placeholder="Circuit amps">
+<button id="runNecBtn">Calculate NEC</button>
+<pre id="necout"></pre></div>
 
-        .sidebar-header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+<div id="estimate" class="card" style="display:none"><h3>Manual Estimate</h3>
+<input id="title" placeholder="Title">
+<textarea id="desc" placeholder="Description"></textarea>
+<button id="saveEstBtn">Save Estimate</button>
+<pre id="estout"></pre></div>
 
-        .nav-menu {
-            list-style: none;
-        }
+<div id="materials" class="card" style="display:none"><h3>Materials</h3>
+<input id="mq" placeholder="Search query">
+<button id="searchMatBtn">Search prices</button>
+<pre id="matout"></pre>
+<ul id="matlist"></ul></div>
 
-        .nav-item {
-            margin-bottom: 5px;
-        }
+<div id="labor" class="card" style="display:none"><h3>Labor Rates</h3>
+<input id="state" placeholder="State" value="Maryland">
+<button id="runLaborBtn">Compare rates</button>
+<pre id="laborout"></pre></div>
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            background-color: var(--surface-light);
-            color: var(--text);
-        }
-
-        .nav-link i {
-            margin-right: 10px;
-            width: 20px;
-        }
-
-        .main-content {
-            margin-left: 250px;
-            flex: 1;
-            padding: 20px;
-        }
-
-        .content-header {
-            margin-bottom: 30px;
-        }
-
-        .content-header h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .content-header p {
-            color: var(--text-secondary);
-        }
-
-        .card {
-            background-color: var(--surface);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 16px;
-            color: var(--primary);
-        }
-
-        .card h3 {
-            font-size: 1.25rem;
-            margin-bottom: 12px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--surface-light);
-            background-color: var(--background);
-            color: var(--text);
-            font-size: 1rem;
-            transition: border-color 0.2s ease;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        button:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .button-secondary {
-            background-color: var(--surface-light);
-        }
-
-        .button-secondary:hover {
-            background-color: #475569;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-            margin: 20px 0;
-        }
-
-        .grid-item {
-            background-color: var(--background);
-            border-radius: 8px;
-            padding: 16px;
-            text-align: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .grid-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .grid-item i {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-
-        .pre-box {
-            background-color: var(--background);
-            padding: 16px;
-            border-radius: 8px;
-            overflow: auto;
-            max-height: 300px;
-            font-family: monospace;
-            white-space: pre-wrap;
-            margin-top: 16px;
-        }
-
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .material-list {
-            margin-top: 16px;
-        }
-
-        .material-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid var(--surface-light);
-        }
-
-        .material-item:last-child {
-            border-bottom: none;
-        }
-
-        .material-name {
-            font-weight: 500;
-        }
-
-        .material-price {
-            color: var(--primary);
-        }
-
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .mobile-menu-toggle {
-                display: block;
-            }
-        }
-
-        /* Status indicator */
-        .status-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .status-active {
-            background-color: #10b981;
-        }
-
-        .status-inactive {
-            background-color: #ef4444;
-        }
-    </style>
-</head>
-<body>
-    <button class="mobile-menu-toggle" id="mobileMenuToggle">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <div class="app-container">
-        <nav class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h1><i class="fas fa-bolt"></i> Judith Estimator</h1>
-            </div>
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="#" class="nav-link active" data-section="setup">
-                        <i class="fas fa-cog"></i> Project Setup
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-section="blueprint">
-                        <i class="fas fa-drafting-compass"></i> Upload Blueprints
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-section="room">
-                        <i class="fas fa-calculator"></i> Manual Room / NEC
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-section="estimate">
-                        <i class="fas fa-file-invoice-dollar"></i> Manual Estimate
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-section="materials">
-                        <i class="fas fa-boxes"></i> Materials & Pricing
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-section="labor">
-                        <i class="fas fa-users"></i> Labor Rates
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <main class="main-content">
-            <div class="content-header">
-                <h1 id="pageTitle">Judith Electrical Estimator</h1>
-                <p id="pageDescription">Professional electrical estimation tools</p>
-            </div>
-
-            <!-- Project Setup Section -->
-            <section id="setupSection" class="card">
-                <h2>1. Building Type</h2>
-                <div class="form-group">
-                    <label>Select Building Type</label>
-                    <div class="button-group">
-                        <button onclick="setType('Residential')" class="button-secondary">
-                            <i class="fas fa-home"></i> Residential
-                        </button>
-                        <button onclick="showCommercialOptions()" class="button-secondary">
-                            <i class="fas fa-building"></i> Commercial/Industrial
-                        </button>
-                    </div>
-                </div>
-
-                <div id="commercialOptions" class="form-group" style="display: none;">
-                    <label>Commercial/Industrial Type</label>
-                    <select id="commercialType" onchange="if(this.value) setType(this.value)">
-                        <option value="">Select type...</option>
-                        <option>office</option>
-                        <option>schools</option>
-                        <option>hospitals</option>
-                        <option>stores</option>
-                        <option>warehouses</option>
-                        <option>industrial</option>
-                    </select>
-                </div>
-
-                <div id="codeSection" class="form-group" style="display: none;">
-                    <label>2. Code Edition</label>
-                    <select id="edition">
-                        <option>NEC 2023</option>
-                        <option>NEC 2020</option>
-                        <option>NEC 2017</option>
-                    </select>
-                    <div class="button-group">
-                        <button onclick="continueToWorkflow()">
-                            <i class="fas fa-arrow-right"></i> Continue
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Blueprint Upload Section -->
-            <section id="blueprintSection" class="card" style="display: none;">
-                <h2>Blueprint Upload</h2>
-                <div class="form-group">
-                    <label>Upload Blueprints</label>
-                    <input type="file" id="blueprintFile" accept=".pdf,.dwg,.dxf">
-                    <div class="button-group">
-                        <button onclick="uploadBlueprint()">
-                            <i class="fas fa-upload"></i> Upload File
-                        </button>
-                        <button onclick="clearBlueprint()" class="button-secondary">
-                            <i class="fas fa-times"></i> Clear
-                        </button>
-                    </div>
-                </div>
-                <div id="blueprintStatus" class="pre-box" style="display: none;"></div>
-            </section>
-
-            <!-- Manual Room/NEC Section -->
-            <section id="roomSection" class="card" style="display: none;">
-                <h2>Manual Room / NEC Calculation</h2>
-                <div class="form-group">
-                    <label for="sqft">Square Footage</label>
-                    <input type="number" id="sqft" placeholder="Enter square footage">
-                </div>
-                <div class="form-group">
-                    <label for="amps">Circuit Amps</label>
-                    <input type="number" id="amps" placeholder="Enter circuit amps">
-                </div>
-                <div class="button-group">
-                    <button onclick="runNec()">
-                        <i class="fas fa-calculator"></i> Calculate NEC
-                    </button>
-                </div>
-                <div id="necout" class="pre-box"></div>
-            </section>
-
-            <!-- Manual Estimate Section -->
-            <section id="estimateSection" class="card" style="display: none;">
-                <h2>Manual Estimate</h2>
-                <div class="form-group">
-                    <label for="title">Estimate Title</label>
-                    <input type="text" id="title" placeholder="Enter estimate title">
-                </div>
-                <div class="form-group">
-                    <label for="desc">Description</label>
-                    <textarea id="desc" rows="4" placeholder="Enter estimate description"></textarea>
-                </div>
-                <div class="button-group">
-                    <button onclick="saveEstimate()">
-                        <i class="fas fa-save"></i> Save Estimate
-                    </button>
-                    <button onclick="clearEstimate()" class="button-secondary">
-                        <i class="fas fa-times"></i> Clear
-                    </button>
-                </div>
-                <div id="estout" class="pre-box"></div>
-            </section>
-
-            <!-- Materials Section -->
-            <section id="materialsSection" class="card" style="display: none;">
-                <h2>Materials & Pricing</h2>
-                <div class="form-group">
-                    <label for="mq">Search Materials</label>
-                    <input type="text" id="mq" placeholder="Enter material search query">
-                </div>
-                <div class="button-group">
-                    <button onclick="searchMaterials()">
-                        <i class="fas fa-search"></i> Search Prices
-                    </button>
-                </div>
-                <div id="matout" class="pre-box"></div>
-                <div id="materialsList" class="material-list"></div>
-            </section>
-
-            <!-- Labor Rates Section -->
-            <section id="laborSection" class="card" style="display: none;">
-                <h2>Labor Rates</h2>
-                <div class="form-group">
-                    <label for="state">State</label>
-                    <input type="text" id="state" value="Maryland" placeholder="Enter state">
-                </div>
-                <div class="button-group">
-                    <button onclick="compareLaborRates()">
-                        <i class="fas fa-chart-bar"></i> Compare Rates
-                    </button>
-                </div>
-                <div id="laborout" class="pre-box"></div>
-            </section>
-        </main>
-    </div>
-
-    <script src="/assets/js/app.js"></script>
-</body>
-</html>
+<script src="/static/app.js" defer></script>
+</div></body></html>
