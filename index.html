@@ -1,10 +1,17 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Judith Estimator</title></head><body>
 <h1>Judith Electrical Estimator</h1>
-<h2>Start</h2>
-<select id="btype"><option>Residential</option><option>Commercial</option><option>Industrial</option></select>
+<h2>Building type</h2>
+<button onclick="setType('Residential')">Residential (most common)</button>
+<button onclick="setType('Commercial')">Commercial</button>
+<button onclick="setType('Industrial')">Industrial</button>
+<button onclick="setType('Multi-family')">Multi-family</button>
+<div id="code" style="display:none">
+<h3>Code edition</h3>
+<select id="edition"><option>NEC 2023</option><option>NEC 2020</option><option>NEC 2017</option></select>
 <button onclick="start()">Continue</button>
+</div>
 <div id="menu" style="display:none">
-<h3>Choose workflow</h3>
+<h3>Workflow</h3>
 <button onclick="show('blueprint')">Upload blueprints</button>
 <button onclick="show('room')">Manual room / NEC compliance</button>
 <button onclick="show('estimate')">Manual estimate</button>
@@ -13,6 +20,8 @@
 <div id="room" style="display:none"><h3>Room / NEC</h3><input placeholder="Square footage"><input placeholder="Circuit amps"></div>
 <div id="estimate" style="display:none"><h3>Manual estimate</h3><textarea placeholder="Description"></textarea></div>
 <script>
+let type='';
+function setType(t){type=t;document.getElementById('code').style.display='block';}
 function start(){document.getElementById('menu').style.display='block';}
 function show(id){['blueprint','room','estimate'].forEach(x=>document.getElementById(x).style.display=x===id?'block':'none');}
 </script>
