@@ -19,7 +19,7 @@ pre{background:#0f172a;padding:12px;border-radius:8px;overflow:auto;max-height:3
 
 <div id="code" class="card" style="display:none"><h3>2. Code Edition</h3>
 <select id="edition"><option>NEC 2023</option><option>NEC 2020</option><option>NEC 2017</option></select>
-<button onclick="start()">Continue</button></div>
+<button id="continueBtn">Continue</button></div>
 
 <div id="menu" class="card" style="display:none"><h3>3. Workflow</h3><div class="grid">
 <button onclick="show('blueprint')">Upload Blueprints</button>
@@ -34,35 +34,25 @@ pre{background:#0f172a;padding:12px;border-radius:8px;overflow:auto;max-height:3
 <div id="room" class="card" style="display:none"><h3>Manual Room / NEC</h3>
 <input id="sqft" type="number" placeholder="Square footage">
 <input id="amps" type="number" placeholder="Circuit amps">
-<button onclick="runNec()">Calculate NEC</button>
+<button id="runNecBtn">Calculate NEC</button>
 <pre id="necout"></pre></div>
 
 <div id="estimate" class="card" style="display:none"><h3>Manual Estimate</h3>
 <input id="title" placeholder="Title">
 <textarea id="desc" placeholder="Description"></textarea>
-<button onclick="saveEst()">Save Estimate</button>
+<button id="saveEstBtn">Save Estimate</button>
 <pre id="estout"></pre></div>
 
 <div id="materials" class="card" style="display:none"><h3>Materials</h3>
 <input id="mq" placeholder="Search query">
-<button onclick="searchMat()">Search prices</button>
+<button id="searchMatBtn">Search prices</button>
 <pre id="matout"></pre>
 <ul id="matlist"></ul></div>
 
 <div id="labor" class="card" style="display:none"><h3>Labor Rates</h3>
 <input id="state" placeholder="State" value="Maryland">
-<button onclick="runLabor()">Compare rates</button>
+<button id="runLaborBtn">Compare rates</button>
 <pre id="laborout"></pre></div>
 
-<script>
-let type='';
-function setType(t){type=t;document.getElementById('code').style.display='block';setTimeout(()=>document.getElementById('code').scrollIntoView({behavior:'smooth'}),100);}
-function start(){document.getElementById('menu').style.display='block';document.getElementById('menu').scrollIntoView({behavior:'smooth'});}
-function show(id){['blueprint','room','estimate','materials','labor'].forEach(x=>document.getElementById(x).style.display=x===id?'block':'none');}
-async function runNec(){const r=await fetch('/api/nec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sqft:document.getElementById('sqft').value,amps:document.getElementById('amps').value})});document.getElementById('necout').textContent=(await r.json()).report;}
-async function saveEst(){const r=await fetch('/api/estimate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:document.getElementById('title').value,desc:document.getElementById('desc').value})});document.getElementById('estout').textContent=JSON.stringify(await r.json(),null,2);}
-async function searchMat(){const r=await fetch('/api/price-search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:document.getElementById('mq').value})});document.getElementById('matout').textContent=JSON.stringify(await r.json(),null,2);}
-async function runLabor(){const r=await fetch('/api/labor-compare',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:document.getElementById('state').value})});document.getElementById('laborout').textContent=JSON.stringify(await r.json(),null,2);}
-fetch('/api/materials').then(r=>r.json()).then(d=>{const u=document.getElementById('matlist');d.forEach(m=>{const li=document.createElement('li');li.textContent=m.description+' $'+m.unit_price;u.appendChild(li);});});
-</script>
+<script src="/static/app.js" defer></script>
 </div></body></html>
