@@ -4,11 +4,29 @@ from __future__ import annotations
 import csv
 import json
 import os
+import time
 from typing import Any
 
 from .models import Estimate, MaterialItem
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+AI_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60
+
+
+def get_ai_cache(pricebook: dict[str, Any]) -> dict[str, Any]:
+    return pricebook.setdefault("ai_cache", {})
+
+
+def get_cached_ai_value(pricebook: dict[str, Any], key: str) -> Any:
+    entry = get_ai_cache(pricebook).get(key)
+    if not isinstance(entry, dict):
+        return None
+    if time.time() - float(entry.get("ts", 0)) > AI_CACHE_TTL_SECONDS:
+        return None
+    return entry.get("value")
+
+
+def set_cached_ai_value(pricebook: dict[str, Any], key: str, value: Any) -> None:
+    get_ai_cache(pricebook)[key] = {"ts": time.time(), "value": value}
 DATA_DIR = os.path.join(BASE_DIR, "data")
 ESTIMATES_DIR = os.path.join(BASE_DIR, "estimates")
 PRICEBOOK_PATH = os.path.join(DATA_DIR, "pricebook.json")
