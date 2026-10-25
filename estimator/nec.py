@@ -20,6 +20,30 @@ import math
 from dataclasses import dataclass
 
 GENERAL_LIGHTING_VA_PER_SQFT = 3
+
+OCCUPANCY_LIGHTING_VA = {
+    "armories_auditoriums": {"2017": 1.0, "2020": 1.0, "2023": 1.0},
+    "banks": {"2017": 3.5, "2020": 1.3, "2023": 1.3},
+    "barber_beauty": {"2017": 3.0, "2020": 3.0, "2023": 3.0},
+    "churches": {"2017": 1.0, "2020": 1.0, "2023": 1.0},
+    "clubs": {"2017": 2.0, "2020": 2.0, "2023": 2.0},
+    "court_houses": {"2017": 2.0, "2020": 1.4, "2023": 1.4},
+    "dwelling": {"2017": 3.0, "2020": 3.0, "2023": 3.0},
+    "garages_commercial": {"2017": 0.5, "2020": 0.5, "2023": 0.5},
+    "hospitals": {"2017": 2.0, "2020": 1.6, "2023": 1.6},
+    "hotels_motels": {"2017": 2.0, "2020": 2.0, "2023": 2.0},
+    "industrial": {"2017": 2.0, "2020": 2.0, "2023": 1.6},
+    "lodge_rooms": {"2017": 1.5, "2020": 1.5, "2023": 1.5},
+    "office": {"2017": 3.5, "2020": 1.3, "2023": 1.3},
+    "restaurants": {"2017": 2.0, "2020": 2.0, "2023": 2.0},
+    "schools": {"2017": 3.0, "2020": 1.3, "2023": 1.3},
+    "stores": {"2017": 3.0, "2020": 3.0, "2023": 1.9},
+    "warehouses": {"2017": 0.25, "2020": 0.1, "2023": 0.1},
+}
+
+
+def occupancy_lighting_va(occupancy: str, year: str = "2023") -> float:
+    return OCCUPANCY_LIGHTING_VA.get(occupancy, {}).get(year, 0.0)
 SMALL_APPLIANCE_CIRCUITS_MIN = 2
 SMALL_APPLIANCE_VA_EACH = 1500
 LAUNDRY_CIRCUIT_VA = 1500
