@@ -1,23 +1,19 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Judith Estimator</title></head><body>
 <h1>Judith Electrical Estimator</h1>
-<section><h2>Labor Rate</h2><div id="rate"></div></section>
-<section><h2>Materials</h2><ul id="mats"></ul></section>
-<section><h2>New Estimate</h2>
-<form id="f">
-<input name="title" placeholder="Title"><br>
-<select name="building_type"><option>Residential</option><option>Commercial</option><option>Industrial</option></select><br>
-<select name="code_edition"><option>NEC 2023</option><option>NEC 2020</option></select><br>
-<textarea name="desc" placeholder="Description"></textarea><br>
-<button>Submit</button>
-</form>
-<pre id="out"></pre></section>
+<h2>Start</h2>
+<select id="btype"><option>Residential</option><option>Commercial</option><option>Industrial</option></select>
+<button onclick="start()">Continue</button>
+<div id="menu" style="display:none">
+<h3>Choose workflow</h3>
+<button onclick="show('blueprint')">Upload blueprints</button>
+<button onclick="show('room')">Manual room / NEC compliance</button>
+<button onclick="show('estimate')">Manual estimate</button>
+</div>
+<div id="blueprint" style="display:none"><h3>Blueprint upload</h3><input type="file"></div>
+<div id="room" style="display:none"><h3>Room / NEC</h3><input placeholder="Square footage"><input placeholder="Circuit amps"></div>
+<div id="estimate" style="display:none"><h3>Manual estimate</h3><textarea placeholder="Description"></textarea></div>
 <script>
-fetch('/api/labor-rate').then(r=>r.json()).then(d=>document.getElementById('rate').textContent=d.rate);
-fetch('/api/materials').then(r=>r.json()).then(d=>{const u=document.getElementById('mats');d.forEach(m=>{const li=document.createElement('li');li.textContent=m.description+' $'+m.unit_price;u.appendChild(li);});});
-document.getElementById('f').addEventListener('submit',async e=>{
- e.preventDefault();
- const fd=new FormData(e.target);
- const r=await fetch('/api/estimate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(fd))});
- document.getElementById('out').textContent=JSON.stringify(await r.json(),null,2);
-});
-</script></body></html>
+function start(){document.getElementById('menu').style.display='block';}
+function show(id){['blueprint','room','estimate'].forEach(x=>document.getElementById(x).style.display=x===id?'block':'none');}
+</script>
+</body></html>
