@@ -203,7 +203,7 @@
         document.querySelectorAll('#type-buttons button').forEach(b => b.classList.remove('active'));
         btnElement.classList.add('active');
         document.getElementById('code').style.display = 'block';
-        if (t === 'Residential') { setTimeout(start, 200); }
+        setTimeout(start, 200);
     }
 
     function start() {
