@@ -1,233 +1,68 @@
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Judith Estimator</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-light: #64748b;
-            --border: #e2e8f0;
-            --radius: 8px;
-        }
+<!doctype html><html><head><meta charset="utf-8"><title>Judith Estimator</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<style>
+body{font-family:system-ui,Arial;margin:0;background:#0f172a;color:#e2e8f0}
+.wrap{max-width:960px;margin:24px auto;padding:16px}
+.card{background:#1e293b;border-radius:12px;padding:16px;margin:12px 0}
+button{background:#3b82f6;color:#fff;border:none;padding:8px 12px;border-radius:6px;margin:4px;cursor:pointer}
+input,select,textarea{padding:8px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;margin:4px 0;width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+pre{background:#0f172a;padding:12px;border-radius:8px;overflow:auto;max-height:300px}
+</style></head><body><div class="wrap">
+<h1>Judith Electrical Estimator</h1>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
-            margin: 0;
-            padding: 2rem 1rem;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            font-size: 2.25rem;
-            font-weight: 800;
-            color: #0f172a;
-            margin-bottom: 2rem;
-            text-align: center;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 1rem;
-        }
-
-        h2, h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #334155;
-            margin-top: 0;
-            margin-bottom: 1rem;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-
-        .grid-4 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1rem;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        button {
-            background-color: var(--card-bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        button:hover {
-            border-color: var(--primary);
-            background-color: #eff6ff;
-        }
-
-        button.active {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            padding: 0.75rem 1.5rem;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            color: white;
-        }
-
-        select, input, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 1rem;
-            box-sizing: border-box;
-            background-color: var(--bg);
-            color: var(--text);
-            margin-bottom: 1rem;
-            transition: border-color 0.2s;
-        }
-
-        select:focus, input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: #fff;
-        }
-
-        .form-group {
-            max-width: 300px;
-        }
-
-        .input-pair {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>Judith Electrical Estimator</h1>
-
-    <div class="card">
-        <h2>Building Type</h2>
-        <div class="grid-4" id="type-buttons">
-            <button onclick="setType(this, 'Residential')">Residential</button>
-        </div>
-        <div style="margin-top:1rem">
-            <select id="occType" onchange="setTypeSelect(this)">
-                <option value="">Commercial / Industrial occupancy...</option>
-                <option>armories_auditoriums</option><option>banks</option><option>barber_beauty</option>
-                <option>churches</option><option>clubs</option><option>court_houses</option>
-                <option>garages_commercial</option><option>hospitals</option><option>hotels_motels</option>
-                <option>industrial</option><option>lodge_rooms</option><option>office</option>
-                <option>restaurants</option><option>schools</option><option>stores</option><option>warehouses</option>
-            </select>
-        </div>
-    </div>
-
-    <div id="code" class="card" style="display:none">
-        <h3>Code Edition</h3>
-        <div class="form-group">
-            <select id="edition">
-                <option>NEC 2023</option>
-                <option>NEC 2020</option>
-                <option>NEC 2017</option>
-            </select>
-            <button class="btn-primary" onclick="start()">Continue to Workflow</button>
-        </div>
-    </div>
-
-    <div id="menu" class="card" style="display:none">
-        <h3>Select Estimation Workflow</h3>
-        <div class="grid-3" id="workflow-buttons">
-            <button onclick="show(this, 'blueprint')">Upload Blueprints</button>
-            <button onclick="show(this, 'room')">Manual Room / NEC Compliance</button>
-            <button onclick="show(this, 'estimate')">Manual Estimate</button>
-        </div>
-    </div>
-
-    <div id="blueprint" class="card" style="display:none">
-        <h3>Blueprint Upload</h3>
-        <input type="file">
-    </div>
-
-    <div id="room" class="card" style="display:none">
-        <h3>Room / NEC Details</h3>
-        <div class="input-pair">
-            <input type="number" placeholder="Square footage">
-            <input type="number" placeholder="Circuit Amps (e.g., 15, 20)">
-        </div>
-    </div>
-
-    <div id="estimate" class="card" style="display:none">
-        <h3>Manual Estimate Description</h3>
-        <textarea placeholder="List raw materials, panel details, branch circuit layouts, or unit counts..."></textarea>
-    </div>
+<div class="card"><h2>1. Building Type</h2>
+<button onclick="setType('Residential')">Residential</button>
+<select onchange="if(this.value) setType(this.value)"><option value="">Commercial/Industrial occupancy...</option>
+<option>office</option><option>schools</option><option>hospitals</option><option>stores</option><option>warehouses</option><option>industrial</option></select>
 </div>
 
+<div id="code" class="card" style="display:none"><h3>2. Code Edition</h3>
+<select id="edition"><option>NEC 2023</option><option>NEC 2020</option><option>NEC 2017</option></select>
+<button onclick="start()">Continue</button></div>
+
+<div id="menu" class="card" style="display:none"><h3>3. Workflow</h3><div class="grid">
+<button onclick="show('blueprint')">Upload Blueprints</button>
+<button onclick="show('room')">Manual Room / NEC</button>
+<button onclick="show('estimate')">Manual Estimate</button>
+<button onclick="show('materials')">Materials & Pricing</button>
+<button onclick="show('labor')">Labor Rates</button>
+</div></div>
+
+<div id="blueprint" class="card" style="display:none"><h3>Blueprint Upload</h3><input type="file"></div>
+
+<div id="room" class="card" style="display:none"><h3>Manual Room / NEC</h3>
+<input id="sqft" type="number" placeholder="Square footage">
+<input id="amps" type="number" placeholder="Circuit amps">
+<button onclick="runNec()">Calculate NEC</button>
+<pre id="necout"></pre></div>
+
+<div id="estimate" class="card" style="display:none"><h3>Manual Estimate</h3>
+<input id="title" placeholder="Title">
+<textarea id="desc" placeholder="Description"></textarea>
+<button onclick="saveEst()">Save Estimate</button>
+<pre id="estout"></pre></div>
+
+<div id="materials" class="card" style="display:none"><h3>Materials</h3>
+<input id="mq" placeholder="Search query">
+<button onclick="searchMat()">Search prices</button>
+<pre id="matout"></pre>
+<ul id="matlist"></ul></div>
+
+<div id="labor" class="card" style="display:none"><h3>Labor Rates</h3>
+<input id="state" placeholder="State" value="Maryland">
+<button onclick="runLabor()">Compare rates</button>
+<pre id="laborout"></pre></div>
+
 <script>
-    let type = '';
-    function setTypeSelect(sel){ if(sel.value){ setType(sel, sel.value); } }
-    function showLoading(){document.getElementById('loading').style.display='flex';}
-    function hideLoading(){document.getElementById('loading').style.display='none';}
-
-    function setType(btnElement, t) {
-        type = t;
-        document.querySelectorAll('#type-buttons button').forEach(b => b.classList.remove('active'));
-        btnElement.classList.add('active');
-        document.getElementById('code').style.display = 'block';
-        setTimeout(start, 200);
-    }
-
-    function start() {
-        document.getElementById('menu').style.display = 'block';
-        document.getElementById('menu').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function show(btnElement, id) {
-        document.querySelectorAll('#workflow-buttons button').forEach(b => b.classList.remove('active'));
-        btnElement.classList.add('active');
-        ['blueprint', 'room', 'estimate'].forEach(x => {
-            document.getElementById(x).style.display = x === id ? 'block' : 'none';
-        });
-    }
+let type='';
+function setType(t){type=t;document.getElementById('code').style.display='block';setTimeout(()=>document.getElementById('code').scrollIntoView({behavior:'smooth'}),100);}
+function start(){document.getElementById('menu').style.display='block';document.getElementById('menu').scrollIntoView({behavior:'smooth'});}
+function show(id){['blueprint','room','estimate','materials','labor'].forEach(x=>document.getElementById(x).style.display=x===id?'block':'none');}
+async function runNec(){const r=await fetch('/api/nec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sqft:document.getElementById('sqft').value,amps:document.getElementById('amps').value})});document.getElementById('necout').textContent=(await r.json()).report;}
+async function saveEst(){const r=await fetch('/api/estimate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:document.getElementById('title').value,desc:document.getElementById('desc').value})});document.getElementById('estout').textContent=JSON.stringify(await r.json(),null,2);}
+async function searchMat(){const r=await fetch('/api/price-search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:document.getElementById('mq').value})});document.getElementById('matout').textContent=JSON.stringify(await r.json(),null,2);}
+async function runLabor(){const r=await fetch('/api/labor-compare',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:document.getElementById('state').value})});document.getElementById('laborout').textContent=JSON.stringify(await r.json(),null,2);}
+fetch('/api/materials').then(r=>r.json()).then(d=>{const u=document.getElementById('matlist');d.forEach(m=>{const li=document.createElement('li');li.textContent=m.description+' $'+m.unit_price;u.appendChild(li);});});
 </script>
-
-<div id="loading" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);align-items:center;justify-content:center;color:#fff;font-size:1.2rem;">Loading…</div>
-</body>
-</html>
+</div></body></html>
