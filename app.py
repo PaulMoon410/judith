@@ -76,5 +76,13 @@ def api_nec():
     return jsonify({"report": format_report(res)})
 
 
+@app.route("/api/labor-compare", methods=["POST"])
+def api_labor_compare():
+    data = request.get_json(silent=True) or {}
+    from estimator.labor_rates import compare_rates
+    res = compare_rates(data.get("state", "Maryland"))
+    return jsonify({"recommended": res.recommended, "sources": [s.__dict__ for s in res.sources]})
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")))
