@@ -68,5 +68,13 @@ def api_estimate_create():
     return jsonify({"saved": True, "title": est.title})
 
 
+@app.route("/api/nec", methods=["POST"])
+def api_nec():
+    data = request.get_json(silent=True) or {}
+    from estimator.nec import calculate, format_report
+    res = calculate(float(data.get("sqft", 1)), float(data.get("amps", 20)))
+    return jsonify({"report": format_report(res)})
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")))
