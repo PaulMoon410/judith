@@ -1,60 +1,183 @@
-<!doctype html><html><head><meta charset="utf-8"><title>Judith Estimator</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Judith Electrical Estimator</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <style>
-body{font-family:system-ui,Arial;margin:0;background:#0f172a;color:#e2e8f0}
-.wrap{max-width:960px;margin:24px auto;padding:16px}
-.card{background:#1e293b;border-radius:12px;padding:16px;margin:12px 0}
-button{background:#3b82f6;color:#fff;border:none;padding:8px 12px;border-radius:6px;margin:4px;cursor:pointer}
-input,select,textarea{padding:8px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;margin:4px 0;width:100%}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
-pre{background:#0f172a;padding:12px;border-radius:8px;overflow:auto;max-height:300px}
-</style></head><body><div class="wrap">
-<h1>Judith Electrical Estimator</h1>
-
-<div class="card"><h2>1. Building Type</h2>
-<select id="occType"><option value="">Select building type...</option>
-<option>Residential</option>
-<option>Multi-family</option>
-<option>office</option><option>schools</option><option>hospitals</option><option>stores</option><option>warehouses</option><option>industrial</option><option>armories_auditoriums</option><option>banks</option><option>barber_beauty</option><option>churches</option><option>clubs</option><option>court_houses</option><option>garages_commercial</option><option>hotels_motels</option><option>lodge_rooms</option><option>restaurants</option>
-<option>office</option><option>schools</option><option>hospitals</option><option>stores</option><option>warehouses</option><option>industrial</option></select>
+:root{
+  --bg:#0b1220;--panel:#131c2e;--panel2:#1a2540;--line:#26334f;--text:#e6ecf7;--muted:#8fa0bf;
+  --accent:#fbbf24;--accent2:#3b82f6;--ok:#34d399;--err:#f87171;--radius:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);
+  background:radial-gradient(1200px 600px at 80% -10%,#1b2a52 0,transparent 60%),var(--bg);min-height:100vh;line-height:1.5}
+.topbar{display:flex;align-items:center;gap:12px;padding:16px 24px;border-bottom:1px solid var(--line);
+  background:rgba(11,18,32,.8);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+.logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#f59e0b);
+  display:grid;place-items:center;color:#1a1200;font-weight:800;font-size:20px}
+.topbar h1{font-size:18px;margin:0;font-weight:700}
+.topbar small{color:var(--muted);display:block;font-weight:400;font-size:12px}
+.wrap{max-width:980px;margin:0 auto;padding:24px 16px 64px}
+.steps{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.step{flex:1;min-width:140px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);
+  color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px;background:var(--panel)}
+.step b{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--panel2);font-size:12px}
+.step.active{color:var(--text);border-color:var(--accent)}
+.step.active b{background:var(--accent);color:#1a1200}
+.step.done b{background:var(--ok);color:#052e1f}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:14px 0;
+  box-shadow:0 6px 24px rgba(0,0,0,.25);animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card h2,.card h3{margin:0 0 4px;font-size:17px}
+.hint{color:var(--muted);font-size:13px;margin:0 0 14px}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+input,select,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);
+  background:#0d1526;color:var(--text);font:inherit;outline:none;transition:border .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+textarea{min-height:90px;resize:vertical}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 16px;font-weight:600;color:#fff;
+  background:var(--accent2);transition:transform .1s,filter .15s}
+button:hover{filter:brightness(1.12)}button:active{transform:scale(.97)}
+button:disabled{opacity:.6;cursor:wait}
+button.primary{background:linear-gradient(135deg,var(--accent),#f59e0b);color:#1a1200}
+.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1;min-width:160px}
+.actions{margin-top:14px;display:flex;gap:8px;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:16px;
+  background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:var(--text)}
+.tile .ico{font-size:24px}.tile span{font-size:12px;color:var(--muted);font-weight:400}
+.tile:hover{border-color:var(--accent);filter:none;transform:translateY(-2px)}
+.tile.sel{border-color:var(--accent);box-shadow:0 0 0 2px rgba(251,191,36,.25)}
+.out{margin-top:14px}
+pre{background:#0d1526;border:1px solid var(--line);padding:12px;border-radius:10px;overflow:auto;max-height:320px;margin:0;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:var(--panel2);color:var(--accent)}
+.stat{font-size:28px;font-weight:800;color:var(--accent)}
+.msg{padding:10px 12px;border-radius:10px;font-size:14px}
+.msg.ok{background:rgba(52,211,153,.12);color:var(--ok)}
+.msg.err{background:rgba(248,113,113,.12);color:var(--err)}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
+.drop.over,.drop:hover{border-color:var(--accent);color:var(--text)}
+.drop input{display:none}
+ul#matlist{margin:0;padding:0;list-style:none;max-height:260px;overflow:auto}
+ul#matlist li{display:flex;justify-content:space-between;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;
+  border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:10px;
+  background:var(--panel2);border:1px solid var(--line);opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+@media(max-width:600px){.topbar{padding:12px 16px}.wrap{padding:16px 12px 48px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">⚡</div>
+  <h1>Judith Electrical Estimator<small>Quick NEC checks, material pricing and labor rates</small></h1>
 </div>
 
-<div id="code" class="card" style="display:none"><h3>2. Code Edition</h3>
-<select id="edition"><option>NEC 2023</option><option>NEC 2020</option><option>NEC 2017</option></select>
-<button id="continueBtn">Continue</button></div>
+<div class="wrap">
+  <div class="steps" id="steps">
+    <div class="step active" data-step="1"><b>1</b> Building type</div>
+    <div class="step" data-step="2"><b>2</b> Code edition</div>
+    <div class="step" data-step="3"><b>3</b> Workflow</div>
+  </div>
 
-<div id="menu" class="card" style="display:none"><h3>3. Workflow</h3><div id="workflow-buttons" class="grid">
-<button data-target="blueprint">Upload Blueprints</button>
-<button data-target="room">Manual Room / NEC</button>
-<button data-target="estimate">Manual Estimate</button>
-<button data-target="materials">Materials & Pricing</button>
-<button data-target="labor">Labor Rates</button>
-</div></div>
+  <div class="card">
+    <h2>1. Building type</h2>
+    <p class="hint">Choose what you are estimating. This sets up the rest of the workflow.</p>
+    <select id="occType" aria-label="Building type">
+      <option value="">Select building type...</option>
+      <option>Residential</option>
+      <option>Multi-family</option>
+      <option>office</option><option>schools</option><option>hospitals</option><option>stores</option>
+      <option>warehouses</option><option>industrial</option><option>armories_auditoriums</option>
+      <option>banks</option><option>barber_beauty</option><option>churches</option><option>clubs</option>
+      <option>court_houses</option><option>garages_commercial</option><option>hotels_motels</option>
+      <option>lodge_rooms</option><option>restaurants</option>
+    </select>
+  </div>
 
-<div id="blueprint" class="card" style="display:none"><h3>Blueprint Upload</h3><input type="file"></div>
+  <div id="code" class="card" style="display:none">
+    <h3>2. Code edition</h3>
+    <p class="hint">Which NEC edition applies to this job?</p>
+    <select id="edition" aria-label="Code edition">
+      <option>NEC 2023</option><option>NEC 2020</option><option>NEC 2017</option>
+    </select>
+    <div class="actions"><button id="continueBtn" class="primary">Continue →</button></div>
+  </div>
 
-<div id="room" class="card" style="display:none"><h3>Manual Room / NEC</h3>
-<input id="sqft" type="number" placeholder="Square footage">
-<input id="amps" type="number" placeholder="Circuit amps">
-<button id="runNecBtn">Calculate NEC</button>
-<pre id="necout"></pre></div>
+  <div id="menu" class="card" style="display:none">
+    <h3>3. Workflow</h3>
+    <p class="hint">Pick what you want to do next. You can switch at any time.</p>
+    <div id="workflow-buttons" class="grid">
+      <button class="tile" data-target="blueprint"><div class="ico">📐</div>Upload Blueprints<span>Import a PDF or file</span></button>
+      <button class="tile" data-target="room"><div class="ico">🏠</div>Manual Room / NEC<span>Load calculation</span></button>
+      <button class="tile" data-target="estimate"><div class="ico">📝</div>Manual Estimate<span>Save a new estimate</span></button>
+      <button class="tile" data-target="materials"><div class="ico">🔌</div>Materials &amp; Pricing<span>Search supplier prices</span></button>
+      <button class="tile" data-target="labor"><div class="ico">👷</div>Labor Rates<span>Compare by state</span></button>
+    </div>
+  </div>
 
-<div id="estimate" class="card" style="display:none"><h3>Manual Estimate</h3>
-<input id="title" placeholder="Title">
-<textarea id="desc" placeholder="Description"></textarea>
-<button id="saveEstBtn">Save Estimate</button>
-<pre id="estout"></pre></div>
+  <div id="blueprint" class="card" style="display:none">
+    <h3>Blueprint upload</h3>
+    <p class="hint">PDF, TXT or CSV files.</p>
+    <label class="drop" id="drop">
+      <div id="dropText">Drag a file here or click to browse</div>
+      <input id="bpFile" type="file" accept=".pdf,.txt,.csv">
+    </label>
+    <div id="bpout" class="out"></div>
+  </div>
 
-<div id="materials" class="card" style="display:none"><h3>Materials</h3>
-<input id="mq" placeholder="Search query">
-<button id="searchMatBtn">Search prices</button>
-<pre id="matout"></pre>
-<ul id="matlist"></ul></div>
+  <div id="room" class="card" style="display:none">
+    <h3>Manual room / NEC</h3>
+    <p class="hint">Enter the floor area and circuit size to calculate the load.</p>
+    <div class="row">
+      <div><label for="sqft">Square footage</label><input id="sqft" type="number" min="0" placeholder="e.g. 1500"></div>
+      <div><label for="amps">Circuit amps</label><input id="amps" type="number" min="0" placeholder="e.g. 20"></div>
+    </div>
+    <div class="actions"><button id="runNecBtn" class="primary">Calculate NEC</button></div>
+    <div class="out"><pre id="necout" style="display:none"></pre></div>
+  </div>
 
-<div id="labor" class="card" style="display:none"><h3>Labor Rates</h3>
-<input id="state" placeholder="State" value="Maryland">
-<button id="runLaborBtn">Compare rates</button>
-<pre id="laborout"></pre></div>
+  <div id="estimate" class="card" style="display:none">
+    <h3>Manual estimate</h3>
+    <p class="hint">Give the job a name and description, then save it.</p>
+    <label for="title">Title</label><input id="title" placeholder="e.g. Smith kitchen remodel">
+    <label for="desc">Description</label><textarea id="desc" placeholder="Scope of work, notes..."></textarea>
+    <div class="actions"><button id="saveEstBtn" class="primary">Save estimate</button></div>
+    <div id="estout" class="out"></div>
+  </div>
 
+  <div id="materials" class="card" style="display:none">
+    <h3>Materials &amp; pricing</h3>
+    <p class="hint">Search live prices, or browse your price book below.</p>
+    <div class="row">
+      <input id="mq" placeholder="e.g. 12/2 Romex 250ft">
+      <button id="searchMatBtn" class="primary" style="flex:0 0 auto">Search prices</button>
+    </div>
+    <div id="matout" class="out"></div>
+    <label>Your price book</label>
+    <ul id="matlist"></ul>
+  </div>
+
+  <div id="labor" class="card" style="display:none">
+    <h3>Labor rates</h3>
+    <p class="hint">Compare electrician labor rates for a state.</p>
+    <div class="row">
+      <input id="state" placeholder="State" value="Maryland">
+      <button id="runLaborBtn" class="primary" style="flex:0 0 auto">Compare rates</button>
+    </div>
+    <div id="laborout" class="out"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
 <script src="/static/app.js" defer></script>
-</div></body></html>
+</body>
+</html>

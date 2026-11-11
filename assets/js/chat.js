@@ -102,56 +102,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Get response from Harold (in a real app, this would be an API call)
+    // Get response from Harold (via my_ai / API / backend or direct endpoint)
     function getHaroldResponse(message) {
-        const lowerMessage = message.toLowerCase();
-
-        if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-            return "Hello! I'm here to help you with electrical estimation. What would you like to know?";
-        }
-
-        if (lowerMessage.includes('price') || lowerMessage.includes('cost')) {
-            return "For pricing information, please check our Materials & Pricing section. You can also upload blueprints for a detailed estimate.";
-        }
-
-        if (lowerMessage.includes('labor') || lowerMessage.includes('rate')) {
-            return "Labor rates vary by location and project complexity. Use our Labor Rates tool to compare rates for different states.";
-        }
-
-        if (lowerMessage.includes('blueprint') || lowerMessage.includes('plan')) {
-            return "You can upload blueprints in the Upload Blueprints section. We support PDF, DWG, and DXF formats.";
-        }
-
-        if (lowerMessage.includes('material') || lowerMessage.includes('suppl')) {
-            return "Browse our materials database in the Materials & Pricing section. You can search for specific items or browse by category.";
-        }
-
-        if (lowerMessage.includes('estimate') || lowerMessage.includes('quote')) {
-            return "You can create manual estimates in the Manual Estimate section. Just provide a title and description, and we'll save it for you.";
-        }
-
-        if (lowerMessage.includes('code') || lowerMessage.includes('nec')) {
-            return "We use the National Electrical Code (NEC) for all calculations. You can select the appropriate code edition in Project Setup.";
-        }
-
-        if (lowerMessage.includes('residential')) {
-            return "For residential projects, we focus on standard electrical requirements for homes. NEC calculations are based on square footage and circuit requirements.";
-        }
-
-        if (lowerMessage.includes('commercial') || lowerMessage.includes('industrial')) {
-            return "For commercial and industrial projects, we have specific requirements based on occupancy type. Select the appropriate category in Project Setup.";
-        }
-
-        if (lowerMessage.includes('help') || lowerMessage.includes('assist')) {
-            return "I'm here to help! You can ask about materials, pricing, labor rates, NEC calculations, or any other aspect of electrical estimation.";
-        }
-
-        if (lowerMessage.includes('contact') || lowerMessage.includes('support')) {
-            return "For direct support, you can email us at support@judithestimator.com or call us at (555) 123-4567 during business hours.";
-        }
-
-        // Default response
-        return "Thanks for your question! I'm still learning, but I'll do my best to help. Could you please provide more details?";
+        // We can route this to an API endpoint or communicate with backend
+        return fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        })
+        .then(res => res.json())
+        .then(data => data.response || data.answer || "Thanks for your question!")
+        .catch(err => "Sorry, I'm having trouble connecting to Harold's backend right now.");
     }
 
     // Event listeners
