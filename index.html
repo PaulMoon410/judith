@@ -6,38 +6,38 @@
 <title>Judith Electrical Estimates</title>
 <style>
 :root{
-  --bg:#f8fafc;--panel:#fff;--line:#e2e8f0;--text:#1e293b;--muted:#64748b;
+  --bg:#0b1220;--panel:#131c2e;--line:#26334f;--text:#e6ecf7;--muted:#8fa0bf;
   --accent:#2563eb;--accent2:#3b82f6;--ok:#10b981;--err:#ef4444;--radius:12px;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--bg);min-height:100vh;line-height:1.6}
-.topbar{display:flex;align-items:center;gap:16px;padding:20px 24px;border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:10;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.topbar{display:flex;align-items:center;gap:16px;padding:20px 24px;border-bottom:1px solid var(--line);background:rgba(19,28,46,.95);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
 .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:22px}
 .topbar h1{font-size:22px;margin:0;font-weight:700}
 .topbar small{color:var(--muted);display:block;font-weight:400;font-size:13px}
 .wrap{max-width:720px;margin:0 auto;padding:32px 20px 64px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:28px;margin:20px 0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:28px;margin:20px 0;box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .card h2{margin:0 0 6px;font-size:22px}
 .hint{color:var(--muted);font-size:14px;margin:0 0 20px}
 label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px;font-weight:500}
-input,select,textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--text);font:inherit;outline:none;transition:border .15s,box-shadow .15s}
-input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+input,select,textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#0d1526;color:var(--text);font:inherit;outline:none;transition:border .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.25)}
 textarea{min-height:100px;resize:vertical}
 button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:12px 20px;font-weight:600;color:#fff;background:var(--accent);transition:transform .1s,filter .15s}
 button:hover{filter:brightness(1.1)}button:active{transform:scale(.98)}
 button:disabled{opacity:.6;cursor:not-allowed}
-button.secondary{background:#e2e8f0;color:var(--text)}
+button.secondary{background:#2a3a5a;color:var(--text)}
 .row{display:flex;gap:16px;flex-wrap:wrap}.row>*{flex:1;min-width:180px}
 .actions{margin-top:20px;display:flex;gap:10px;align-items:center}
 .out{margin-top:16px}
-pre{background:#f1f5f9;border:1px solid var(--line);padding:14px;border-radius:10px;overflow:auto;max-height:320px;margin:0;font-size:13px;white-space:pre-wrap}
+pre{background:#0d1526;border:1px solid var(--line);padding:14px;border-radius:10px;overflow:auto;max-height:320px;margin:0;font-size:13px;white-space:pre-wrap}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
 th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
-.badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;background:#eff6ff;color:var(--accent)}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;background:#1e3a5f;color:#93c5fd}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;background:#1e293b;color:#fff;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;background:#1e293b;color:#fff;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #toast.show{opacity:1}
 @media(max-width:600px){.topbar{padding:16px}.wrap{padding:20px 16px 40px}.card{padding:20px}}
 </style>
