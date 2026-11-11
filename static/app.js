@@ -1,136 +1,85 @@
 document.addEventListener('DOMContentLoaded', () => {
   const byId = id => document.getElementById(id);
-  const PANELS = ['blueprint', 'room', 'estimate', 'materials', 'labor'];
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const money = n => (typeof n === 'number' || /^[\d.]+$/.test(n)) ? '$' + Number(n).toFixed(2) : esc(n ?? '');
+  const toast = t => { const el = byId('toast'); el.textContent = t; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); };
+  const spin = (btn, on) => { btn.disabled = on; btn.innerHTML = on ? '<span class="spinner"></span>Working...' : btn.dataset.label; };
 
-  function toast(text) {
-    const t = byId('toast');
-    t.textContent = text;
-    t.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => t.classList.remove('show'), 2500);
-  }
-
-  function setStep(n) {
-    document.querySelectorAll('.step').forEach(s => {
-      const i = Number(s.dataset.step);
-      s.classList.toggle('active', i === n);
-      s.classList.toggle('done', i < n);
-    });
-  }
-
-  function msg(el, kind, text) { el.innerHTML = `<div class="msg ${kind}">${esc(text)}</div>`; }
-
-  async function api(url, body, btn) {
-    const label = btn && btn.innerHTML;
-    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Working...'; }
+  byId('estimateForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = byId('submitBtn'); btn.dataset.label = btn.textContent; spin(btn, true);
     try {
-      const r = await fetch(url, {
-        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(data.error || `Request failed (${r.status})`);
-      return data;
-    } finally {
-      if (btn) { btn.disabled = false; btn.innerHTML = label; }
-    }
-  }
-
-  function show(id) {
-    PANELS.forEach(x => { const e = byId(x); if (e) e.style.display = x === id ? 'block' : 'none'; });
-    document.querySelectorAll('#workflow-buttons button').forEach(b => b.classList.toggle('sel', b.dataset.target === id));
-    const e = byId(id); if (e) e.scrollIntoView({behavior: 'smooth', block: 'start'});
-  }
-
-  function showMenu() {
-    byId('menu').style.display = 'block';
-    setStep(3);
-    byId('menu').scrollIntoView({behavior: 'smooth'});
-  }
-
-  function setType(t) {
-    window._type = t;
-    byId('code').style.display = 'block';
-    setStep(2);
-    toast('Building type: ' + t);
-  }
-
-  byId('occType').addEventListener('change', e => { if (e.target.value) setType(e.target.value); });
-  byId('continueBtn').addEventListener('click', () => { window._edition = byId('edition').value; showMenu(); });
-  document.querySelectorAll('#workflow-buttons button').forEach(b => b.addEventListener('click', () => show(b.dataset.target)));
-
-  byId('runNecBtn').addEventListener('click', async e => {
-    const out = byId('necout');
-    if (!byId('sqft').value || !byId('amps').value) { toast('Enter square footage and amps'); return; }
-    try {
-      const d = await api('/api/nec', {sqft: byId('sqft').value, amps: byId('amps').value}, e.currentTarget);
-      out.style.display = 'block';
-      out.textContent = d.report;
-    } catch (err) { out.style.display = 'block'; out.textContent = err.message; }
+      const r = await fetch('/', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+        name: byId('name').value,
+        email: byId('email').value,
+        phone: byId('phone').value,
+        project_type: byId('project_type').value,
+        details: byId('details').value
+      })});
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Request failed');
+      toast(data.message || 'Submitted!');
+      e.target.reset();
+    } catch (err) {
+      toast('Error: ' + err.message);
+    } finally { spin(btn, false); }
   });
 
-  byId('saveEstBtn').addEventListener('click', async e => {
-    const out = byId('estout');
-    if (!byId('title').value.trim()) { toast('Please enter a title'); return; }
+  byId('searchPriceBtn').addEventListener('click', async () => {
+    const q = byId('priceQuery').value.trim();
+    if (!q) return toast('Enter a material to search');
+    const btn = byId('searchPriceBtn'); btn.dataset.label = btn.textContent; spin(btn, true);
     try {
-      const d = await api('/api/estimate', {title: byId('title').value, desc: byId('desc').value}, e.currentTarget);
-      msg(out, 'ok', `Saved "${d.title}"`);
-    } catch (err) { msg(out, 'err', err.message); }
+      const r = await fetch('/api/pricing', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({query: q})});
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Search failed');
+      byId('priceOut').innerHTML = data.length
+        ? '<table><thead><tr><th>Material</th><th class="num">Price</th><th class="num">Unit</th><th>Source</th></tr></thead><tbody>' +
+          data.slice(0, 8).map(o => `<tr><td>${o.description || 'Unknown'}</td><td class="num">$${Number(o.price || o.unit_price || 0).toFixed(2)}</td><td class="num">${o.unit || 'each'}</td><td>${o.source || ''}</td></tr>`).join('') +
+          '</tbody></table>' + (data.length > 8 ? `<p style="color:var(--muted);font-size:13px;margin-top:8px">+${data.length - 8} more results</p>` : '')
+        : '<div class="msg err">No results found</div>';
+    } catch (err) {
+      byId('priceOut').innerHTML = '<div class="msg err">Error: ' + err.message + '</div>';
+    } finally { spin(btn, false); }
   });
 
-  byId('searchMatBtn').addEventListener('click', async e => {
-    const out = byId('matout');
-    if (!byId('mq').value.trim()) { toast('Enter a search term'); return; }
+  byId('chatBtn').addEventListener('click', async () => {
+    const msg = byId('chatInput').value.trim();
+    if (!msg) return toast('Enter a question');
+    const btn = byId('chatBtn'); btn.dataset.label = btn.textContent; spin(btn, true);
     try {
-      const d = await api('/api/price-search', {query: byId('mq').value}, e.currentTarget);
-      const rows = Array.isArray(d) ? d : (d.offers || []);
-      if (!rows.length) { out.innerHTML = '<div class="msg">No results found.</div>'; return; }
-      const cols = Object.keys(rows[0]).filter(k => typeof rows[0][k] !== 'object');
-      out.innerHTML = '<table><thead><tr>' + cols.map(c => `<th>${esc(c)}</th>`).join('') + '</tr></thead><tbody>' +
-        rows.map(r => '<tr>' + cols.map(c => `<td>${/price|cost/i.test(c) ? money(r[c]) : esc(r[c])}</td>`).join('') + '</tr>').join('') +
-        '</tbody></table>';
-    } catch (err) { msg(out, 'err', err.message); }
+      const r = await fetch('/api/chat', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: msg})});
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Chat failed');
+      byId('chatOut').innerHTML = '<div class="msg ok">' + (data.response || data.answer || 'No response') + '</div>';
+    } catch (err) {
+      byId('chatOut').innerHTML = '<div class="msg err">Error: ' + err.message + '</div>';
+    } finally { spin(btn, false); }
   });
 
-  byId('runLaborBtn').addEventListener('click', async e => {
-    const out = byId('laborout');
+  byId('laborBtn').addEventListener('click', async () => {
+    const state = byId('stateInput').value.trim() || 'Maryland';
+    const btn = byId('laborBtn'); btn.dataset.label = btn.textContent; spin(btn, true);
     try {
-      const d = await api('/api/labor-compare', {state: byId('state').value}, e.currentTarget);
-      const rec = d.recommended;
-      out.innerHTML = `<div class="hint">Recommended rate</div><div class="stat">${typeof rec === 'number' ? money(rec) + '/hr' : esc(rec ?? 'n/a')}</div>` +
-        ((d.sources || []).length
-          ? '<table><thead><tr>' + Object.keys(d.sources[0]).map(k => `<th>${esc(k)}</th>`).join('') + '</tr></thead><tbody>' +
-            d.sources.map(s => '<tr>' + Object.values(s).map(v => `<td>${esc(typeof v === 'object' ? JSON.stringify(v) : v)}</td>`).join('') + '</tr>').join('') +
-            '</tbody></table>'
-          : '');
-    } catch (err) { msg(out, 'err', err.message); }
+      const r = await fetch('/api/labor-rate');
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Failed');
+      byId('laborOut').innerHTML = '<div class="msg ok">Recommended rate for ' + state + ': <strong>$' + data.rate.toFixed(2) + '/hr</strong></div>';
+    } catch (err) {
+      byId('laborOut').innerHTML = '<div class="msg err">Error: ' + err.message + '</div>';
+    } finally { spin(btn, false); }
   });
 
-  const drop = byId('drop'), file = byId('bpFile');
-  async function upload(f) {
-    const out = byId('bpout');
-    byId('dropText').textContent = f.name;
-    const fd = new FormData(); fd.append('file', f);
-    out.innerHTML = '<div class="msg"><span class="spinner"></span>Uploading...</div>';
+  byId('necBtn').addEventListener('click', async () => {
+    const sqft = parseFloat(byId('sqftInput').value) || 0;
+    const amps = parseFloat(byId('ampsInput').value) || 20;
+    if (!sqft) return toast('Enter square footage');
+    const btn = byId('necBtn'); btn.dataset.label = btn.textContent; spin(btn, true);
     try {
-      const r = await fetch('/api/upload', {method: 'POST', body: fd});
-      const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.error || 'Upload is not available on this server');
-      msg(out, 'ok', `Uploaded ${d.filename}`);
-    } catch (err) { msg(out, 'err', err.message); }
-  }
-  file.addEventListener('change', () => { if (file.files[0]) upload(file.files[0]); });
-  ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
-  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
-  drop.addEventListener('drop', e => { if (e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]); });
-
-  fetch('/api/materials').then(r => r.json()).then(d => {
-    const u = byId('matlist');
-    d.forEach(m => {
-      const li = document.createElement('li');
-      li.innerHTML = `<span>${esc(m.description || m.name)}</span><span class="badge">${money(m.unit_price)}</span>`;
-      u.appendChild(li);
-    });
-  }).catch(() => {});
+      const r = await fetch('/api/nec', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({sqft, amps})});
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Calc failed');
+      byId('necOut').innerHTML = '<pre>' + (data.report || 'No report') + '</pre>';
+    } catch (err) {
+      byId('necOut').innerHTML = '<div class="msg err">Error: ' + err.message + '</div>';
+    } finally { spin(btn, false); }
+  });
 });

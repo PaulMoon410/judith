@@ -122,13 +122,42 @@ app.delete('/api/products/:id', authenticate, (req, res) => {
   }
 });
 
-// Lookup product price from supplier API (placeholder)
+// Lookup product price from supplier API
 app.get('/api/supplier-price', authenticate, async (req, res) => {
   const { sku, supplier } = req.query;
-  // TODO: Integrate with real supplier API here
-  // Example: fetch price from supplier API using sku
-  // For now, return null to indicate not found
-  res.json({ price: null, source: 'supplier', sku, supplier });
+  if (!sku || !supplier) return res.status(400).json({ error: 'Missing sku or supplier parameter' });
+
+  try {
+    let results = [];
+    const supplierLower = supplier.toLowerCase();
+
+    if (supplierLower.includes('homedeot') || supplierLower.includes('home depot')) {
+      results = await supplierScraper.scrapeHomeDepot(sku).catch(() => []);
+    } else if (supplierLower.includes('lowes')) {
+      results = await supplierScraper.scrapeLowes(sku).catch(() => []);
+    } else if (supplierLower.includes('ace') || supplierLower.includes('ace hardware')) {
+      results = await supplierScraper.scrapeAceHardware(sku).catch(() => []);
+    } else {
+      // Try all three if supplier not specifically recognized
+      const [hd, lowes, ace] = await Promise.all([
+        supplierScraper.scrapeHomeDepot(sku).catch(() => []),
+        supplierScraper.scrapeLowes(sku).catch(() => []),
+        supplierScraper.scrapeAceHardware(sku).catch(() => [])
+      ]);
+      results = [...hd, ...lowes, ...ace];
+    }
+
+    // Find matching product by SKU in results
+    const matching = results.find(r => r.sku === sku || r.name.includes(sku));
+
+    if (matching) {
+      res.json({ price: matching.price, source: matching.supplier, sku, name: matching.name });
+    } else {
+      res.json({ price: null, source: 'supplier', sku, name: null });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Scraping failed', details: err.message });
+  }
 });
 
 // Auth routes
