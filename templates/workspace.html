@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Judith | Job workspace</title>
+  <link rel="stylesheet" href="/workspace/static/workspace.css">
+  <script src="/workspace/static/workspace.js" defer></script>
+</head>
+<body>
+  <header class="topbar"><a href="/workspace" class="brand">J<span>Judith <small>Estimate. Schedule. Learn.</small></span></a>
+    <button id="logout" class="secondary" hidden>Sign out</button></header>
+  <main>
+    <div id="message" role="status" aria-live="polite" hidden></div>
+    <section id="login-panel" class="card narrow">
+      <p class="eyebrow">THE JUDITH GROUP</p><h1>Your jobs, connected.</h1>
+      <p>Build a reviewed estimate, schedule your crew, and compare the result.</p>
+      <form id="login-form"><label>Staff password<input id="password" type="password" autocomplete="current-password" required></label>
+        <button>Sign in</button></form>
+    </section>
+    <div id="workspace" hidden>
+      <section id="dashboard">
+        <div class="section-heading"><div><p class="eyebrow">JOB WORKSPACE</p><h1>Plan the work. Protect the margin.</h1></div>
+          <button id="new-job">+ Blank estimate</button></div>
+        <section class="card"><h2>Start with a template</h2><p>Starter quantities and hours are allowances, not verified designs. Review before quoting.</p>
+          <div id="templates" class="template-grid"></div>
+          <form id="pdf-form" class="inline"><label>Import a PDF quantity schedule<input id="pdf-file" type="file" accept=".pdf,application/pdf" required></label>
+            <button class="secondary">Import draft</button></form></section>
+        <section class="card"><div class="section-heading"><h2>Estimates &amp; jobs</h2><a href="/workspace/api/export" download>Export job costs (CSV)</a>
+          <label>Filter<input id="job-filter" type="search" placeholder="Customer, title, status"></label></div>
+          <div id="job-list" class="job-list"></div></section>
+        <section class="card"><h2>Crew schedule</h2><p>Times display in this device's timezone. Multi-day work, breaks, inspections, and travel require dispatcher review.</p>
+          <div id="schedule-list" class="job-list"></div></section>
+      </section>
+      <section id="editor" hidden>
+        <div class="section-heading"><button id="back" class="secondary">Back to jobs</button><span id="job-status" class="badge"></span></div>
+        <form id="estimate-form">
+          <section class="card"><h1 id="editor-title">Estimate</h1><p id="locked-note" hidden>Quoted prices and scope are frozen. Create a revision for changes; the original stays intact.</p>
+            <fieldset id="estimate-fields">
+              <div class="grid"><label>Job title<input name="title" maxlength="160" required></label>
+                <label>Customer<input name="customer" maxlength="160"></label>
+                <label>Site address<input name="address" maxlength="500"></label>
+                <label>Quote valid through<input name="valid_until" type="date"></label></div>
+              <label>Scope &amp; assumptions<textarea name="scope" rows="3" maxlength="6000"></textarea></label>
+              <label>Exclusions<textarea name="exclusions" rows="2" maxlength="4000"></textarea></label>
+              <label>Internal notes / site survey<textarea name="notes" rows="2" maxlength="4000"></textarea></label>
+              <h2>Materials &amp; labor</h2>
+              <p>Material prices are per base unit, not per package. Labor is person-hours per unit; legacy installed labor charges are not added.</p>
+              <div id="items"></div><button id="add-item" type="button" class="secondary">+ Add item</button>
+              <h2>Cost &amp; selling price</h2>
+              <div class="grid">
+                <label>Burdened labor cost ($/person-hour)<input name="labor_rate" type="number" min="0" step=".01"></label>
+                <label>Permits ($)<input name="permits" type="number" min="0" step=".01"></label>
+                <label>Equipment ($)<input name="equipment" type="number" min="0" step=".01"></label>
+                <label>Other direct costs ($)<input name="other_costs" type="number" min="0" step=".01"></label>
+                <label>Consumables (% of materials)<input name="consumables_percent" type="number" min="0" max="100" step=".01"></label>
+                <label>Overhead (% of direct cost)<input name="overhead_percent" type="number" min="0" max="100" step=".01"></label>
+                <label>Contingency (% of direct cost)<input name="contingency_percent" type="number" min="0" max="100" step=".01"></label>
+                <label>Pricing method<select name="pricing_mode"><option value="markup">Markup on cost basis</option><option value="margin">Target margin on selling price</option></select></label>
+                <label>Markup / target margin (%)<input name="pricing_percent" type="number" min="0" max="100" step=".01"></label>
+                <label>Tax treatment<select name="tax_mode"><option value="none">No tax charged</option><option value="materials">Materials share of selling price</option><option value="all">Entire selling price</option></select></label>
+                <label>Tax rate (%)<input name="tax_percent" type="number" min="0" max="100" step=".001"></label>
+              </div>
+              <p>No state tax rules or payroll costs are assumed. Overhead and contingency are separate allowances. Confirm treatment with your accountant.</p>
+              <label class="check"><input name="labor_confirmed" type="checkbox"> I reviewed labor hours and the fully burdened labor cost.</label>
+              <label class="check"><input name="tax_confirmed" type="checkbox"> I confirmed this job's tax treatment.</label>
+              <label class="check"><input name="scope_confirmed" type="checkbox"> I reviewed the site, quantities, units, compatibility, scope, and exclusions.</label>
+            </fieldset>
+            <div class="actions"><button id="save-estimate">Save draft</button>
+              <button id="preview" type="button" class="secondary">Calculate unsaved draft</button></div>
+          </section>
+        </form>
+        <section class="card"><h2>Estimate breakdown</h2><p id="totals-label">Saved estimate</p><div id="totals" class="totals"></div>
+          <h3>Quote checks</h3><ul id="warnings"></ul>
+          <div class="actions"><button id="quote">Mark quoted &amp; lock prices</button><button id="accept">Record customer acceptance</button>
+            <button id="revision" class="secondary">Create revision</button><button id="print" class="secondary">Print quote / save PDF</button>
+            <button id="invoice" class="secondary">Print fixed-price invoice</button><button id="save-template" class="secondary">Save as template</button></div>
+        </section>
+        <section class="card" id="schedule-panel"><h2>Schedule crew</h2>
+          <p>Accept the quote first. Suggested duration = person-hours / crew size + travel + buffer, rounded up to a minute.
+            Crew names identify shared availability; use consistent names. Travel and buffer reserve the entire crew.</p>
+          <form id="schedule-form"><fieldset id="schedule-fields"><div class="grid">
+            <label>Start (device local time)<input name="start" type="datetime-local" required></label>
+            <label>Crew (comma-separated names)<input name="crew" required placeholder="Paul, Alex"></label>
+            <label>Materials &amp; permits ready<input name="ready_on" type="date" required></label>
+            <label>Travel (elapsed hours)<input name="travel_hours" type="number" min="0" step=".25" value="0" required></label>
+            <label>On-site buffer (elapsed hours)<input name="buffer_hours" type="number" min="0" step=".25" value="0" required></label>
+            <label>Conflict override reason (optional)<input name="override_reason" maxlength="1000"></label>
+          </div><p id="duration"></p><button>Save schedule</button></fieldset></form>
+          <p id="scheduled-summary"></p>
+          <button id="unschedule" class="secondary">Release crew reservation</button>
+        </section>
+        <section class="card" id="actual-panel"><h2>Actual job costs</h2><p>Enter cumulative totals, not additional entries. Material totals include consumables. Positive variance means over budget.</p>
+          <form id="actual-form"><fieldset id="actual-fields"><div class="grid">
+            <label>Total person-hours<input name="labor_hours" type="number" min="0" step=".01" required></label>
+            <label>Total burdened labor cost ($)<input name="labor_cost" type="number" min="0" step=".01" required></label>
+            <label>Materials &amp; consumables ($)<input name="materials" type="number" min="0" step=".01" required></label>
+            <label>Permits ($)<input name="permits" type="number" min="0" step=".01" required></label>
+            <label>Equipment ($)<input name="equipment" type="number" min="0" step=".01" required></label>
+            <label>Other direct costs ($)<input name="other_costs" type="number" min="0" step=".01" required></label>
+          </div><label>Notes / lessons learned<textarea name="notes" rows="2" maxlength="4000"></textarea></label>
+          <button>Save actual costs</button></fieldset></form><div id="comparison" class="totals"></div>
+          <button id="complete">Mark job completed</button>
+        </section>
+      </section>
+    </div>
+    <section id="print-sheet" hidden></section>
+  </main>
+</body>
+</html>

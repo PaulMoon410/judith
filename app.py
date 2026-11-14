@@ -4,6 +4,8 @@ import os, smtplib
 from email.message import EmailMessage
 
 app = Flask(__name__)
+from estimator.workspace_web import register_workspace
+register_workspace(app)
 
 # Customer-facing estimate request form
 @app.route("/", methods=["GET", "POST"])

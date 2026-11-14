@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 estimates/*.json
 estimates/*.txt
+data/jobs.sqlite3
+data/jobs.sqlite3-*

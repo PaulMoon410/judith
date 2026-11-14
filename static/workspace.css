@@ -1,0 +1,37 @@
+:root{color-scheme:light;--ink:#172b3a;--muted:#546778;--line:#d5e0e7;--primary:#126653;--bg:#f1f5f7}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+.topbar{background:#102e36;color:white;padding:18px max(20px,calc((100vw - 1200px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{color:white;text-decoration:none;font-size:30px;font-weight:800;display:flex;align-items:center;gap:18px}
+.brand span{font-size:21px}.brand small{display:block;color:#a8c9ca;font-size:12px;font-weight:400}
+main{max-width:1240px;margin:auto;padding:24px 20px 70px}
+h1{font-size:clamp(25px,4vw,36px);line-height:1.2;margin:8px 0 20px}h2{font-size:21px;margin:0 0 12px}h3{font-size:17px}
+p{color:var(--muted);max-width:90ch}.eyebrow{font-size:12px;letter-spacing:.13em;font-weight:700;color:var(--primary)}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:26px;margin:20px 0}
+.narrow{max-width:520px;margin:60px auto}.section-heading,.inline,.actions{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.actions{justify-content:flex-start;margin-top:18px}.inline{margin-top:22px;justify-content:flex-start}
+.grid,.template-grid,.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.template-grid button{text-align:left;min-height:75px}
+label{display:flex;flex-direction:column;gap:6px;margin:12px 0;color:var(--muted);font-size:14px;font-weight:600;min-width:0}
+input,select,textarea,button{font:inherit;border-radius:8px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #aebfc9;color:var(--ink);background:white;min-width:0}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #83cbb7;outline-offset:2px}
+button{background:var(--primary);border:1px solid transparent;color:white;padding:11px 17px;font-weight:600;cursor:pointer;min-height:44px}
+button.secondary{color:var(--ink);background:#e8eff3;border-color:var(--line)}
+button:disabled,fieldset:disabled{opacity:.65;cursor:default}
+fieldset{border:0;padding:0;margin:0;min-width:0}.check{flex-direction:row;align-items:center}.check input{width:20px;height:20px;flex:none}
+.item{border:1px solid var(--line);border-left:4px solid #a6c5bd;border-radius:9px;padding:16px;margin:14px 0}
+.item .grid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.job-list{display:grid;gap:10px}.job-row{display:flex;justify-content:space-between;align-items:center;gap:14px;border:1px solid var(--line);border-radius:10px;padding:15px;flex-wrap:wrap}
+.job-row p{margin:4px 0;font-size:14px}.badge{display:inline-block;background:#e3f2ed;color:#145342;border-radius:20px;padding:5px 12px;font-size:13px;font-weight:600;text-transform:capitalize}
+.metric{padding:14px;background:#f3f7f8;border-radius:9px}.metric span{display:block;font-size:13px;color:var(--muted)}.metric strong{font-size:21px;overflow-wrap:anywhere}
+#message{position:sticky;top:10px;z-index:5;padding:14px 18px;background:#fff6d8;border:1px solid #d5b252;border-radius:10px;white-space:pre-wrap}
+#message.error{background:#ffeded;border-color:#cb7070;color:#7a1a1a}
+#warnings{color:#8a4916;padding-left:22px}#duration{font-weight:600;color:var(--primary)}
+.search-results a{color:var(--primary)}.search-results{overflow-wrap:anywhere}.search-results p{margin:6px 0}
+.print-table{width:100%;border-collapse:collapse}.print-table th,.print-table td{text-align:left;border-bottom:1px solid #ccc;padding:8px}
+.multiline{white-space:pre-wrap}
+@media(max-width:600px){main{padding:16px 12px}.card{padding:18px}.grid,.item .grid{grid-template-columns:1fr 1fr}.section-heading{align-items:flex-start}.actions button{flex:1 1 190px}.narrow{margin-top:20px}}
+@media(max-width:380px){.grid,.item .grid{grid-template-columns:1fr}}
+@media print{body{background:white;color:black}.topbar,#message,#login-panel,#workspace{display:none!important}#print-sheet{display:block!important}main{padding:0;max-width:none}.print-table tr{break-inside:avoid}h1{font-size:26px}.totals{grid-template-columns:repeat(3,1fr)}}

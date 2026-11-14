@@ -105,6 +105,10 @@ def parse_quantity_rows(text: str, pricebook: dict) -> tuple[list[LineItem], int
             continue
 
         material = _match_material(description, materials)
+        parsed_unit = _UNITS.get((unit or "").casefold(), "ea")
+        if material and unit and parsed_unit != material.unit:
+            # A roll cannot be priced as one foot without its package size.
+            material = None
         if material:
             name = material.name
             item_unit = material.unit
@@ -113,11 +117,11 @@ def parse_quantity_rows(text: str, pricebook: dict) -> tuple[list[LineItem], int
             matched_keys.add(_normalize(name))
         else:
             name = description
-            item_unit = _UNITS.get((unit or "").casefold(), "ea")
+            item_unit = parsed_unit
             unit_price = 0.0
             labor_unit_price = 0.0
 
-        key = _normalize(name)
+        key = f"{_normalize(name)}:{item_unit}"
         if key in rows:
             rows[key].quantity += quantity_value
         else:

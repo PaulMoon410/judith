@@ -9,6 +9,14 @@
 - [ ] Add export/reporting features for accountants
 - [ ] Ensure mobile responsiveness and professional design
 - [ ] Prepare for GitHub and Render deployment
-- [ ] Write and update README.md with setup and usage instructions
+- [x] Write and update README.md with setup and usage instructions
+
+## Estimating and job workspace
+
+- [x] Add mobile-friendly Flask staff workspace without replacing legacy interfaces
+- [x] Add reusable templates, material verification, and decimal cost/margin calculations
+- [x] Persist job snapshots, quote revisions, crew scheduling, and actual costs in SQLite
+- [x] Add reviewed quote workflow, printable quotes/invoices, and job-cost CSV export
+- [x] Document persistent-disk deployment, calculation rules, and manual-review limits
 
 Update this file as each step is completed.
