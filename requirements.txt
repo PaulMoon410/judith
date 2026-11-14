@@ -8,3 +8,8 @@ tkinterdnd2>=0.4.2
 flask
 gunicorn
 requests>=2.25.0
+flask-limiter>=3.5.0
+flask-wtf>=1.1.0
+python-dotenv>=1.0.0
+structlog>=24.1.0
+tenacity>=8.2.0

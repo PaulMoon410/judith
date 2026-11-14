@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - MAIL_TO=${MAIL_TO}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - MAIL_FROM=${MAIL_FROM:-noreply@example.com}
+      - SERPAPI_KEY=${SERPAPI_KEY}
+      - FTP_HOST=${FTP_HOST}
+      - FTP_USER=${FTP_USER}
+      - FTP_PASS=${FTP_PASS}
+      - FTP_PRICEBOOK_PATH=${FTP_PRICEBOOK_PATH:-/ai/brain/pricebook.json}
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
+      - FLASK_ENV=development
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    command: gunicorn --bind 0.0.0.0:5000 --workers 1 --threads 2 --timeout 120 --reload app:app
+
+  # Optional: Redis for rate limiting (uncomment if needed)
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
