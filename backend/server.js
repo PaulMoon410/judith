@@ -9,6 +9,7 @@ const multer = require('multer');
 const Tesseract = require('tesseract.js');
 const PDFDocument = require('pdfkit');
 const { uploadDB, downloadDB } = require('./ftpSync');
+const { exportSnapshot, importSnapshot, tableCount } = require('./stateSnapshot');
 const path = require('path');
 const fs = require('fs');
 
@@ -26,9 +27,11 @@ app.use(cors());
 app.use(express.json());
 
 
-// Download latest DB from FTP on server start
+// Download latest DB from FTP on server start (best-effort; never fatal).
 downloadDB().then(() => {
   console.log('DB sync from FTP complete.');
+}).catch((err) => {
+  console.error('DB sync from FTP failed:', err.message);
 });
 
 // SQLite DB setup
@@ -38,6 +41,7 @@ try {
   console.log('Connected to SQLite database.');
 } catch (err) {
   console.error('DB connection error:', err.message);
+  process.exit(1);
 }
 
 // Create tables if not exist
@@ -67,6 +71,22 @@ const createTables = () => {
   )`).run();
 };
 createTables();
+
+// If the DB is empty, try to bootstrap from the static state.json snapshot
+// (served passively by the web server — no FTP download needed).
+if (tableCount(db, 'transactions') === 0 && tableCount(db, 'products') === 0) {
+  if (importSnapshot(db)) {
+    console.log('DB bootstrapped from state.json snapshot.');
+  }
+}
+
+// Recache the current state to data/state.json whenever data changes.
+function recacheSnapshot() {
+  if (exportSnapshot(db)) {
+    console.log('State snapshot recached.');
+  }
+}
+
 // Auth middleware
 const authenticate = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -95,6 +115,7 @@ app.post('/api/products', authenticate, (req, res) => {
   try {
     const stmt = db.prepare('INSERT INTO products (name, description, price, supplier, sku) VALUES (?, ?, ?, ?, ?)');
     const info = stmt.run(name, description, price, supplier, sku);
+    recacheSnapshot();
     res.json({ id: info.lastInsertRowid });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -116,6 +137,8 @@ app.delete('/api/products/:id', authenticate, (req, res) => {
   try {
     const stmt = db.prepare('DELETE FROM products WHERE id=?');
     const info = stmt.run(req.params.id);
+    uploadDB();
+    recacheSnapshot();
     res.json({ deleted: info.changes });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -165,20 +188,21 @@ app.post('/api/register', (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Missing fields' });
   const hash = bcrypt.hashSync(password, 10);
-  db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hash], function(err) {
-    if (err) return res.status(400).json({ error: 'User exists' });
-    res.json({ id: this.lastID, username });
-  });
+  try {
+    const info = db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(username, hash);
+    res.json({ id: info.lastInsertRowid, username });
+  } catch (err) {
+    return res.status(400).json({ error: 'User exists' });
+  }
 });
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
-  db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
-    if (err || !user) return res.status(400).json({ error: 'Invalid credentials' });
-    if (!bcrypt.compareSync(password, user.password)) return res.status(400).json({ error: 'Invalid credentials' });
-    const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
-    res.json({ token });
-  });
+  const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+  if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+  if (!bcrypt.compareSync(password, user.password)) return res.status(400).json({ error: 'Invalid credentials' });
+  const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+  res.json({ token });
 });
 
 // CRUD for transactions (with FTP sync after changes)
@@ -197,6 +221,7 @@ app.post('/api/transactions', authenticate, (req, res) => {
     const stmt = db.prepare('INSERT INTO transactions (type, category, amount, description, date, user_id) VALUES (?, ?, ?, ?, ?, ?)');
     const info = stmt.run(type, category, amount, description, date, req.user.id);
     uploadDB();
+    recacheSnapshot();
     res.json({ id: info.lastInsertRowid });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -209,6 +234,7 @@ app.put('/api/transactions/:id', authenticate, (req, res) => {
     const stmt = db.prepare('UPDATE transactions SET type=?, category=?, amount=?, description=?, date=? WHERE id=? AND user_id=?');
     const info = stmt.run(type, category, amount, description, date, req.params.id, req.user.id);
     uploadDB();
+    recacheSnapshot();
     res.json({ updated: info.changes });
   } catch (err) {
     res.status(500).json({ error: err.message });
